@@ -105,3 +105,4 @@ venv.bak/
 
 #Local Files to be ignored
 parameters.json
+Tester.py

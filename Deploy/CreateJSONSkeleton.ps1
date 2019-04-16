@@ -9,13 +9,10 @@ param(
     $OutputJSONPath = "..\parameters\Skelparameters.json"
 )
 try{
-    $InputJSON = Get-Content $InputJSONPath | ConvertFrom-Json
-    foreach($jsontopitem in $InputJSON){ #Pops object with top level items off
-        foreach($jsonitem in $jsontopitem){ #Gets value for each object
-            Write-Host $jsonitem
-        }
-    }
+    $InputJSON = Get-Content -Raw -Path $InputJSONPath | ConvertFrom-Json
+    ##You will need to use Get-Member to decode JSON document 
 }
 catch{
     Write-Error -Message "Error occured during JSON Skeleton creation, please check JSON file for errors and rerun"
 }
+Write-Host $InputJSON
