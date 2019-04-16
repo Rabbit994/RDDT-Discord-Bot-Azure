@@ -1,0 +1,23 @@
+{
+    "mysql": {
+        "username": "",
+        "password": "",
+        "server": "",
+        "database": ""
+    },
+    "discord": {
+        "token": ""
+    },
+    "wgapi":{
+        "key": ""
+    },
+    "registration":{
+        "flaskuri": ""
+    },
+    "cosmosdb":{
+        "ENDPOINT": "",
+        "PRIMARYKEY": "",
+        "DATABASE": "",
+        "CONTAINER": ""
+    }
+}
