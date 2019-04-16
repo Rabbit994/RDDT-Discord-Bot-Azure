@@ -11,4 +11,3 @@ def RetrieveConfigOptions(key):
         return data[key]
     except:
         raise Exception(f'Failure on Config load')
-
