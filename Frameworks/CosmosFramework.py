@@ -3,11 +3,14 @@ import azure.cosmos.cosmos_client as cosmos_client
 import Frameworks.CommonFramework as CommonFramework
 
 
-def SetupCosmosDB():
+def SetupCosmosDB(container=None):
         config = CommonFramework.RetrieveConfigOptions("cosmosdb")
         cosmosclient = cosmos_client.CosmosClient(url_connection=config['ENDPOINT'],auth={'masterKey': config['PRIMARYKEY']})
         db = next((data for data in cosmosclient.ReadDatabases() if data['id'] == config['DATABASE']))
-        coll = next((coll for coll in cosmosclient.ReadContainers(db['_self']) if coll['id'] == config['CONTAINER']))
+        if container is None:
+                coll = next((coll for coll in cosmosclient.ReadContainers(db['_self']) if coll['id'] == config['CONTAINER']))
+        else:
+                coll = next((coll for coll in cosmosclient.ReadContainers(db['_self']) if coll['id'] == str(container)))
         return cosmosclient, coll
 
 def Query(cosmosdbquery):
@@ -20,11 +23,25 @@ def Query(cosmosdbquery):
         return results
 
 def InsertItem(cosmosdbquery):
-        '''Inserts Item into CosmosDB, Expects Dict'''
+        '''Inserts Item into CosmosDB, Expects Dict, returns document inserted'''
         cosmosclient, coll = SetupCosmosDB()
         resultreturn = cosmosclient.CreateItem(coll['_self'], cosmosdbquery, options=None)
         return resultreturn
-        
+
+def RemoveItem(documentid,partitionid):
+        '''Deletes item from CosmosDB, expects _self and discordid from result'''
+        cosmosclient, coll = SetupCosmosDB()
+        options = {"enableCrossPartitionQuery": True}
+        options['partitionKey'] = partitionid
+        try:
+                cosmosclient.DeleteItem(str(documentid),options)
+        except:
+                raise Exception
+        return
+
+def ReplaceItem(documentid,newdocument):
+        '''Replaces existing item with new item'''
+        pass
 
 
         
