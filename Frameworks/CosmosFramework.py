@@ -13,7 +13,7 @@ def SetupCosmosDB(container=None):
                 coll = next((coll for coll in cosmosclient.ReadContainers(db['_self']) if coll['id'] == str(container)))
         return cosmosclient, coll
 
-def Query(cosmosdbquery):
+def QueryItems(cosmosdbquery):
         '''Queries CosmosDB and returns results.'''
         cosmosclient, coll = SetupCosmosDB()
         query = {'query': str(cosmosdbquery)}
