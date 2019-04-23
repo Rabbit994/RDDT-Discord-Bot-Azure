@@ -25,8 +25,11 @@ def Query(cosmosdbquery):
 def InsertItem(cosmosdbquery):
         '''Inserts Item into CosmosDB, Expects Dict, returns document inserted'''
         cosmosclient, coll = SetupCosmosDB()
-        resultreturn = cosmosclient.CreateItem(coll['_self'], cosmosdbquery, options=None)
-        return resultreturn
+        try:
+                resultreturn = cosmosclient.CreateItem(coll['_self'], cosmosdbquery, options=None)
+                return resultreturn
+        except:
+                raise Exception
 
 def RemoveItem(documentid,partitionid):
         '''Deletes item from CosmosDB, expects _self (Document Link) and Cosmos DB partition Key (for this application, that's Discord ID)'''
@@ -42,10 +45,6 @@ def RemoveItem(documentid,partitionid):
 def ReplaceItem(documentlink,newdocument):
         '''Replaces existing item with new item'''
         cosmosclient, coll = SetupCosmosDB()
-        #options = {"enableCrossPartitionQuery": True}
-        #options['partitionKey'] = partitionid
-        #options = {"partitionKey": ""}
-        #options = { 'accessCondition' : { 'type': 'IfMatch', 'condition': etag } }
         try:
                 resultreturn = cosmosclient.ReplaceItem(documentlink,newdocument)
         except:
