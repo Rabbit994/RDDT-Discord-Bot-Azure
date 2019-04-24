@@ -22,11 +22,11 @@ def QueryItems(cosmosdbquery):
         results = list(resultreturn)
         return results
 
-def InsertItem(cosmosdbquery):
+def InsertItem(document):
         '''Inserts Item into CosmosDB, Expects Dict, returns document inserted'''
         cosmosclient, coll = SetupCosmosDB()
         try:
-                resultreturn = cosmosclient.CreateItem(coll['_self'], cosmosdbquery, options=None)
+                resultreturn = cosmosclient.CreateItem(coll['_self'], document, options=None)
                 return resultreturn
         except:
                 raise Exception

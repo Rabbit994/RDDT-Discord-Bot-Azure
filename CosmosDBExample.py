@@ -36,6 +36,7 @@ input("Press any key to continue")
 CosmosFramework.RemoveItem(neweditresult['_self'],neweditresult['discordid']) #So again, CosmosDB wants _self ID so it knows what to delete, it also prefers partitionKey for document
 print("Deleted Submitted")
 
+#Select for deleted record
 results = CosmosFramework.QueryItems("SELECT * FROM c WHERE c.discordid= 12345")
 if not results: #Meaning Results is empty
     print("Record Deleted")
