@@ -19,5 +19,9 @@
         "PRIMARYKEY": "",
         "DATABASE": "",
         "CONTAINER": ""
+    },
+    "eventgrid":{
+        "uri": "",
+        "key": ""
     }
 }
