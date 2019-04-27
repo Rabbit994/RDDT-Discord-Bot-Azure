@@ -11,6 +11,9 @@ mysqlcur = mysqlconn.cursor()
 cmd = "SELECT discordid,wgid,clan,rank,wgtoken,updated FROM users"
 mysqlcur.execute(cmd)
 data = mysqlcur.fetchall()
+discordserverid = CommonFramework.RetrieveConfigOptions('discord')
+discordserverid = discordserverid['discordserverid']
+
 for row in data:
     csdbdoc = dict()
     csdbdoc['discordid'] = row[0]
@@ -20,6 +23,6 @@ for row in data:
     csdbdoc['wgtoken'] = row[4]
     csdbdoc['updated'] = row[5]
     csdbdoc['server'] = 'NA'
-    csdbdoc['discordserverid'] = 414198832092545037
+    csdbdoc['discordserverid'] = discordserverid
     CosmosFramework.InsertItem(csdbdoc)
     time.sleep(.5)

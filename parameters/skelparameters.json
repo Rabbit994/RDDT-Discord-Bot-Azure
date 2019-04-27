@@ -6,7 +6,8 @@
         "database": ""
     },
     "discord": {
-        "token": ""
+        "token": "",
+        "discordserverid": ""
     },
     "wgapi":{
         "key": ""
@@ -22,6 +23,7 @@
     },
     "eventgrid":{
         "uri": "",
-        "key": ""
+        "key": "",
+        "hostname":""
     }
 }
