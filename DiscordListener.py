@@ -16,6 +16,11 @@ async def on_message(message):
         eventid=str(message.id)
         subject="message"
         data = dict()
+        if message.guild is None:
+            data['privatemessage'] = True
+        else:
+            data['channelid'] = message.channel.id
+            data['channelname'] = message.channel.name
         data['authorid'] = message.author.id
         data['message'] = message.content
         eventtype = message.content

@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import timezone
 from azure.eventgrid import EventGridClient
 from msrest.authentication import TopicCredentials
 import Frameworks.CommonFramework as CommonFramework
@@ -12,7 +13,7 @@ def publish_event(eventid,subject,data,eventtype):
             'id': str(eventid),
             'subject' : str(subject),
             'data': [data],
-            'event_time': datetime.utcnow(),
+            'event_time': datetime.now(timezone.utc),
             'event_type': str(eventtype),
             'data_version': 1
             }]    
