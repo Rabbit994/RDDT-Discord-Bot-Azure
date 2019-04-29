@@ -29,5 +29,3 @@ async def on_message(message):
         EventGridFramework.publish_event(eventid,subject,data,eventtype)
 
 client.run(token)
-        
-
