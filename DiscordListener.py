@@ -14,18 +14,21 @@ async def on_message(message):
     
     if message.content.startswith(commandprefix):
         eventid=str(message.id)
-        subject="message"
+        eventtype = "message"
+
         data = dict()
         if message.guild is None:
             data['privatemessage'] = True
         else:
             data['channelid'] = message.channel.id
             data['channelname'] = message.channel.name
+        data['serverid'] = message.guild.id
         data['authorid'] = message.author.id
         data['message'] = message.content
-        eventtype = message.content
-        eventtype = eventtype.split()
-        eventtype = eventtype[0]
-        EventGridFramework.publish_event(eventid,subject,data,eventtype)
+        subject = message.content
+        subject = subject.split()
+        subject = subject[0]
+        await EventGridFramework.publish_event(eventid,subject,data,eventtype)
+
 
 client.run(token)

@@ -5,7 +5,7 @@ from msrest.authentication import TopicCredentials
 import Frameworks.CommonFramework as CommonFramework
 import hashlib as hashlib
 
-def publish_event(eventid,subject,data,eventtype):
+async def publish_event(eventid,subject,data,eventtype):
         config = CommonFramework.RetrieveConfigOptions("eventgrid")
         credentials = TopicCredentials(config['key'])
         event_grid_client = EventGridClient(credentials)
