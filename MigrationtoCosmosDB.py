@@ -13,20 +13,18 @@ mysqlcur.execute(cmd)
 data = mysqlcur.fetchall()
 discordserverid = CommonFramework.RetrieveConfigOptions('discord')
 discordserverid = discordserverid['discordserverid']
-
 #Upload Users
 for row in data:
     csdbdoc = dict()
-    csdbdoc['discordid'] = row[0]
+    csdbdoc['discordid'] = str(row[0])
     csdbdoc['wgid'] = row[1]
     csdbdoc['clan'] = row[2]
     csdbdoc['rank'] = row[3]
-    csdbdoc['wgtoken'] = row[4]
-    csdbdoc['updated'] = row[5]
+    csdbdoc['wgtoken'] = str(row[4])
     csdbdoc['server'] = 'NA'
-    csdbdoc['discordserverid'] = discordserverid
+    csdbdoc['discordserverid'] = str(discordserverid)
     CosmosFramework.InsertItem(csdbdoc)
-    time.sleep(.1)
+    time.sleep(.05)
 
 #Upload Rank info
 cmd = "SELECT discordid,wotclan,wotrank from discordroles"
@@ -34,10 +32,11 @@ mysqlcur.execute(cmd)
 data = mysqlcur.fetchall()
 for row in data:
     csdbdoc = dict()
-    csdbdoc['discordid'] = row[0]
+    csdbdoc['discordid'] = str(row[0])
     csdbdoc['wotclan'] = row[1]
     csdbdoc['wotrank'] = row[2]
     csdbdoc['discordserverid'] = discordserverid
     csdbdoc['wotserver'] = 'NA'
+    csdbdoc['role'] = 1
     CosmosFramework.InsertItem(csdbdoc)
-    time.sleep(.1)
+    time.sleep(.05)
