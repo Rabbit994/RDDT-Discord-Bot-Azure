@@ -24,7 +24,7 @@ for row in data:
     csdbdoc['server'] = 'NA'
     csdbdoc['discordserverid'] = str(discordserverid)
     CosmosFramework.InsertItem(csdbdoc)
-    time.sleep(.05)
+    time.sleep(.03)
 
 #Upload Rank info
 cmd = "SELECT discordid,wotclan,wotrank from discordroles"
@@ -39,4 +39,4 @@ for row in data:
     csdbdoc['wotserver'] = 'NA'
     csdbdoc['role'] = 1
     CosmosFramework.InsertItem(csdbdoc)
-    time.sleep(.05)
+    time.sleep(.03)
