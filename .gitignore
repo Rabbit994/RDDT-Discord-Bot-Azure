@@ -102,3 +102,8 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+#Local Files to be ignored
+parameters.json
+Tester.py
+.vscode/
