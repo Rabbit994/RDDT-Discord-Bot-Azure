@@ -13,7 +13,7 @@ async def on_message(message):
         return #Bot ignores itself
     
     if message.content.startswith(commandprefix):
-        eventid=str(message.id)
+        eventid = str(message.id)
         eventtype = "message"
 
         data = dict()

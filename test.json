@@ -1,0 +1,18 @@
+{
+    "id": "583108388838309938",
+    "subject": "?parrot",
+    "data": [
+      {
+        "channelid": 491800495980150789,
+        "channelname": "bot-testing-channel",
+        "serverid": 414198832092545037,
+        "authorid": 113304266269003776,
+        "message": "?parrot hello"
+      }
+    ],
+    "eventType": "message",
+    "eventTime": "2019-05-29T01:44:33.338476Z",
+    "dataVersion": "1",
+    "metadataVersion": "1",
+    "topic": "/subscriptions/5da5c7b5-0878-4c8b-8f5d-c870cc3eec80/resourceGroups/Discord-Bot-RG/providers/Microsoft.EventGrid/topics/RDDT-Discord-Server"
+  }
