@@ -13,21 +13,24 @@ async def on_message(message):
         return #Bot ignores itself
     
     if message.content.startswith(commandprefix):
-        eventid = str(message.id)
-        eventtype = "message"
+        try:
+            eventid = str(message.id)
+            eventtype = "message"
 
-        data = dict()
-        if message.guild is None:
-            data['privatemessage'] = True
-        else:
-            data['channelid'] = message.channel.id
-            data['channelname'] = message.channel.name
-        data['serverid'] = message.guild.id
-        data['authorid'] = message.author.id
-        data['message'] = message.content
-        subject = message.content
-        subject = subject.split()
-        subject = subject[0]
-        await EventGridFramework.publish_event(eventid,subject,data,eventtype)
+            data = dict()
+            if message.guild is None:
+                data['privatemessage'] = True
+            else:
+                data['channelid'] = message.channel.id
+                data['channelname'] = message.channel.name
+            data['serverid'] = message.guild.id
+            data['authorid'] = message.author.id
+            data['message'] = message.content
+            subject = message.content
+            subject = subject.split()
+            subject = subject[0]
+            await EventGridFramework.publish_event(eventid,subject,data,eventtype)
+        except Exception as e:
+            print(e) #Print and move on
 
 client.run(token)
