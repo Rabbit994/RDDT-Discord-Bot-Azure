@@ -21,11 +21,11 @@ async def on_message(message):
             if message.guild is None:
                 data['privatemessage'] = True
             else:
-                data['channelid'] = message.channel.id
-                data['channelname'] = message.channel.name
-            data['serverid'] = message.guild.id
-            data['authorid'] = message.author.id
-            data['message'] = message.content
+                data['channelid'] = str(message.channel.id)
+                data['channelname'] = str(message.channel.name)
+            data['serverid'] = str(message.guild.id)
+            data['authorid'] = str(message.author.id)
+            data['message'] = str(message.content)
             subject = message.content
             subject = subject.split()
             subject = subject[0]
