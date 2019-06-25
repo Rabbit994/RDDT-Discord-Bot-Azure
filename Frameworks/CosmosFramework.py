@@ -1,9 +1,10 @@
 import json as json
 import azure.cosmos.cosmos_client as cosmos_client
+import os
 import Frameworks.CommonFramework as CommonFramework
 
-
 def SetupCosmosDB(container=None):
+        #Azure Function Setup
         config = CommonFramework.RetrieveConfigOptions("cosmosdb")
         cosmosclient = cosmos_client.CosmosClient(url_connection=config['ENDPOINT'],auth={'masterKey': config['PRIMARYKEY']})
         db = next((data for data in cosmosclient.ReadDatabases() if data['id'] == config['DATABASE']))

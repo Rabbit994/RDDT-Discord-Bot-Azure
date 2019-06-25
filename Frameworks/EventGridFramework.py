@@ -2,11 +2,14 @@ from datetime import datetime
 from datetime import timezone
 from azure.eventgrid import EventGridClient
 from msrest.authentication import TopicCredentials
-import Frameworks.CommonFramework as CommonFramework
+#import Frameworks.CommonFramework as CommonFramework
 import hashlib as hashlib
+import os
 
 async def publish_event(eventid,subject,data,eventtype):
-    config = CommonFramework.RetrieveConfigOptions("eventgrid")
+    config = dict()
+    config['key'] = os.environ.get('EVENTGRID_KEY')
+    config['hostname'] = os.environ.get('EVENTGRID_HOSTNAME')
     credentials = TopicCredentials(config['key'])
     event_grid_client = EventGridClient(credentials)
     events=[{
