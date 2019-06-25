@@ -1,6 +1,6 @@
 import discord
 import Frameworks.CommonFramework as CommonFramework
-import Frameworks.EventGridFramework as EventGridFramework
+#import Frameworks.EventGridFramework as EventGridFramework
 import Frameworks.DiscordBotFramework as DiscordBotFramework
 
 
