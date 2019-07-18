@@ -80,7 +80,7 @@ def SendDiscordMessage(message,channelid):
     data = SendDiscordPostRequest(uri,message)
     return data
 
-def send_discord_private_message(discordid,message):
+def send_discord_private_message(message,discordid):
     """Send Private Discord message to Discord ID"""
     global baseuri
     uri = "{0}/users/@me/channels".format(baseuri)
