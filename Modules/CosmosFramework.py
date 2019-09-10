@@ -1,7 +1,7 @@
 import json as json
 import azure.cosmos.cosmos_client as cosmos_client
 import os
-import Frameworks.CommonFramework as CommonFramework
+import Modules.CommonFramework as CommonFramework
 
 def SetupCosmosDB(container=None):
         #Azure Function Setup
@@ -14,18 +14,18 @@ def SetupCosmosDB(container=None):
                 coll = next((coll for coll in cosmosclient.ReadContainers(db['_self']) if coll['id'] == str(container)))
         return cosmosclient, coll
 
-def QueryItems(cosmosdbquery):
+def QueryItems(cosmosdbquery:str, container:str=None) -> list:
         '''Queries CosmosDB and returns results.'''
-        cosmosclient, coll = SetupCosmosDB()
+        cosmosclient, coll = SetupCosmosDB(container)
         query = {'query': str(cosmosdbquery)}
         options = {"enableCrossPartitionQuery": True}
         resultreturn = cosmosclient.QueryItems(coll['_self'],query,options)
         results = list(resultreturn)
         return results
 
-def InsertItem(document):
+def InsertItem(document:dict, container:str=None) -> dict:
         '''Inserts Item into CosmosDB, Expects Dict, returns document inserted'''
-        cosmosclient, coll = SetupCosmosDB()
+        cosmosclient, coll = SetupCosmosDB(container)
         try:
                 resultreturn = cosmosclient.CreateItem(coll['_self'], document, options=None)
                 return resultreturn
@@ -43,7 +43,7 @@ def RemoveItem(documentid,partitionid):
                 raise Exception
         return
 
-def ReplaceItem(documentlink,newdocument):
+def ReplaceItem(documentlink:str,newdocument:dict) -> list:
         '''Replaces existing item with new item'''
         cosmosclient, coll = SetupCosmosDB()
         try:

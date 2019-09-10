@@ -21,9 +21,12 @@ async def on_message(message):
             if 'channel' in returnmessage:
                 DiscordFramework.SendDiscordMessage(returnmessage['channel'],message.channel.id)
             if 'author' in returnmessage:
-                DiscordFramework.send_discord_private_message(returnmessage['author'],message.author.id)
-            
+                DiscordFramework.send_discord_private_message(returnmessage['author'],message.author.id)    
         elif message.content.startswith("?info"):
             pass
-        
+        elif message.content.startswith("?parse"):
+            pass
+
+         
+    
 client.run(token)
