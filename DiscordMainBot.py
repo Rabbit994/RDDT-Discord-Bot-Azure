@@ -1,8 +1,8 @@
 import discord
-import Frameworks.CommonFramework as CommonFramework
-#import Frameworks.EventGridFramework as EventGridFramework
-import Frameworks.DiscordBotFramework as DiscordBotFramework
-import Frameworks.DiscordFramework as DiscordFramework
+import Modules.CommonFramework as CommonFramework
+#import Modules.EventGridFramework as EventGridFramework
+import Modules.DiscordBotFramework as DiscordBotFramework
+import Modules.DiscordFramework as DiscordFramework
 
 
 discordoptions = CommonFramework.RetrieveConfigOptions('discord')
@@ -21,7 +21,7 @@ async def on_message(message):
             if 'channel' in returnmessage:
                 DiscordFramework.SendDiscordMessage(returnmessage['channel'],message.channel.id)
             if 'author' in returnmessage:
-                DiscordFramework.send_discord_private_message(returnmessage['author'],message.author.id)    
+                DiscordFramework.send_discord_private_message(returnmessage['author'],message.author.id)  
         elif message.content.startswith("?info"):
             pass
         elif message.content.startswith("?parse"):

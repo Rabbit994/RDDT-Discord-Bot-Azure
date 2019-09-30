@@ -1,7 +1,7 @@
 import json
 import MySQLdb
-import Frameworks.CommonFramework as CommonFramework
-import Frameworks.CosmosFramework as CosmosFramework
+import Modules.CommonFramework as CommonFramework
+import Modules.CosmosFramework as CosmosFramework
 import time
 
 mysqlcinfo = CommonFramework.RetrieveConfigOptions("mysql")
@@ -37,6 +37,5 @@ for row in data:
     csdbdoc['wotrank'] = row[2]
     csdbdoc['discordserverid'] = discordserverid
     csdbdoc['wotserver'] = 'NA'
-    csdbdoc['role'] = 1
     CosmosFramework.InsertItem(csdbdoc)
     time.sleep(.03)

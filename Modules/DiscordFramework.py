@@ -4,7 +4,7 @@ import os
 from time import sleep
 import Modules.CommonFramework as CommonFramework
 
-baseuri = "https://discordapp.com/api/v6"
+baseuri = "https://discordapp.com/api"
 config = CommonFramework.RetrieveConfigOptions("discord")
 
 
@@ -120,4 +120,13 @@ def send_typing_indicator(channelid:str) -> None:
     uri = "{0}/channels/{1}/typing".format(baseuri,channelid)
     SendDiscordPostRequest(uri,body=None)
     return None
+
+def get_member_list(guildid:str,after:str=None,limit:int=1000) -> dict:
+    """Get Member list of Server(Guild) in question"""
+    global baseuri
+    uri = "{0}/guilds/{1}/members?limit={2}".format(baseuri,guildid,limit)
+    if after is not None:
+        uri += "&after={0}".format(after)
+    returndata = SendDiscordGetRequest(uri)
+    return returndata
     

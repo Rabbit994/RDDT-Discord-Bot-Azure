@@ -1,9 +1,9 @@
 import hashlib
 import datetime
 
-import Frameworks.CommonFramework as CommonFramework
-import Frameworks.CosmosFramework as CosmosFramework
-import Frameworks.DiscordFramework as DiscordFramework
+import Modules.CommonFramework as CommonFramework
+import Modules.CosmosFramework as CosmosFramework
+import Modules.DiscordFramework as DiscordFramework
 
 #Public def
 async def register(message: object) -> dict:
