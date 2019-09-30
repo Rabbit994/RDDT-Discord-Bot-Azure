@@ -12,7 +12,7 @@ config = CommonFramework.RetrieveConfigOptions("discord")
 def GetDiscordHeaders():
     """Generates Header for Discord HTTP requests"""
     global config
-    header = {'Authorization': str('Bot ' + config['token']), 'User-Agent': '/r/worldoftanks Discord Bot (https://github.com/Rabbit994/RDDT-Discord-Bot-Azure-PyFunc, v0.0.1)'}
+    header = {'Authorization': str('Bot ' + config['token']), 'User-Agent': '/r/worldoftanks Discord Bot (https://github.com/Rabbit994/RDDT-Discord-Bot-Azure, v0.0.1)'}
     return header
 
 def __status_code_check(headers:dict, status_code:int) -> None:
