@@ -1,5 +1,5 @@
-import Frameworks.CommonFramework as CommonFramework
-import Frameworks.CosmosFramework as CosmosFramework
+import Modules.CommonFramework as CommonFramework
+import Modules.CosmosFramework as CosmosFramework
 import time
 
 results = CosmosFramework.QueryItems("SELECT * FROM c")
