@@ -40,7 +40,7 @@ def RunUpdate():
                 results = results[0]
                 results['clan'] = wotresult[1]
                 results['rank'] = wotresult[2]
-                CosmosFramework.ReplaceItem(results['_self'],result)
+                CosmosFramework.ReplaceItem(results['_self'],results)
                 #TODO Send Update notice to service bus
         else:
             if users[wotresult[0]]['clan'] != wotresult[1] or users[wotresult[0]]['rank'] != 'friend':
@@ -48,11 +48,7 @@ def RunUpdate():
                 results = results[0]
                 results['clan'] = wotresult[1]
                 results['rank'] = 'friend'
-                CosmosFramework.ReplaceItem(results['_self'],result)
+                CosmosFramework.ReplaceItem(results['_self'],results)
                 #TODO Send Update Notice to service bus
-
-    print(users)
-
-        
 
 RunUpdate()
