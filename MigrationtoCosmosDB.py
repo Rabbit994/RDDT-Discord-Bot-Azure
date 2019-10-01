@@ -24,7 +24,7 @@ for row in data:
     csdbdoc['wgtoken'] = str(row[4])
     csdbdoc['server'] = 'NA'
     CosmosFramework.InsertItem(csdbdoc,'users')
-    time.sleep(.03)
+    #time.sleep(.03)
 
 #Upload Rank info
 cmd = "SELECT discordid,wotclan,wotrank from discordroles"
