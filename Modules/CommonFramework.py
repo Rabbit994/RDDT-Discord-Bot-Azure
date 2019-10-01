@@ -1,6 +1,6 @@
 import json
 import os
-import urllib
+import urllib.request
 
 def RetrieveConfigOptions(key:str) -> dict:
     try:
