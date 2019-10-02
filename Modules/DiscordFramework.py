@@ -51,7 +51,7 @@ def SendDiscordPostRequest(uri,body):
     return data
 
 ##Module Functions
-def GetUserRoles(uid,DiscordServerID):
+def GetUserRoles(uid:str,DiscordServerID:str) -> list:
     """Get Users Roles in JSON from API and returns list"""
     global baseuri
     uri = "{0}/guilds/{1}/members/{2}".format(baseuri,DiscordServerID,uid)
