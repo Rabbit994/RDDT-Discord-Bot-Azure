@@ -57,11 +57,13 @@ def checkroles(discordid:str) -> None:
     playerresult = playerresult[0]
     resproles = get_responsible_roles() #Roles controlled by the bot
     userroles = DiscordFramework.GetUserRoles(discordid,config['serverid'])
+    if userroles == 0:
+        return None #User unknown, exit
     if playerresult['rank'] == "friend":
         friendrole = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wotrank = "friend"','roles')
         friendrole = friendrole[0]
         friendrole = friendrole['discordid']
-        if friendrole not in userroles:
+        if int(friendrole) not in userroles:
             DiscordFramework.AddUserRole(friendrole,discordid,config['serverid'])
         resproles.remove(friendrole)
     else:
@@ -69,13 +71,13 @@ def checkroles(discordid:str) -> None:
         userrankrole = userrankrole[0]['discordid']
         userclanrole = CosmosFramework.QueryItems('SELECT c.discordid FROM c WHERE c.wotclan = {0} AND c.wotrank = null'.format(playerresult['clan']),'roles')
         userclanrole = userclanrole[0]['discordid']
-        if userrankrole not in userroles or userclanrole not in userroles:
+        if int(userrankrole) not in userroles or int(userclanrole) not in userroles:
             DiscordFramework.AddUserRole(userclanrole,discordid,config['serverid'])
             DiscordFramework.AddUserRole(userrankrole,discordid,config['serverid'])
         resproles.remove(userclanrole)
         resproles.remove(userrankrole)
-    commonroles = set(resproles) & set(userroles)
-    if bool(commonroles): #Meaning there is roles showing up
+    commonroles = set(int(i) for i in resproles) & set(userroles) #userroles comes back as int
+    if bool(commonroles): #Meaning there is roles showing up that shouldn't be there
         for role in commonroles:
             DiscordFramework.RemoveUserRole(role,discordid,config['serverid'])
 

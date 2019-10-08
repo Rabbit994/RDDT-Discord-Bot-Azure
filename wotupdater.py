@@ -1,8 +1,9 @@
 #This module handles World of Tanks Clan Updates
-#This is now broken out to be more modular so all dealing with World of Tanks is dealt with here
 
 import Modules.CosmosFramework as CosmosFramework
 import Modules.wotframework as wotframework
+import Modules.DiscordBotFramework as DiscordBotFramework
+
 def RunUpdate():
     
     def get_responsible_clans():
@@ -41,7 +42,8 @@ def RunUpdate():
                 results['clan'] = wotresult[1]
                 results['rank'] = wotresult[2]
                 CosmosFramework.ReplaceItem(results['_self'],results)
-                #TODO Send Update notice to service bus
+                #TODO Send Update
+                DiscordBotFramework.checkroles(results['discordid'])
         else:
             if users[wotresult[0]]['clan'] != wotresult[1] or users[wotresult[0]]['rank'] != 'friend':
                 results = CosmosFramework.QueryItems("SELECT * FROM c WHERE c.wgid={0}".format(wotresult[0]),'users')
@@ -49,6 +51,8 @@ def RunUpdate():
                 results['clan'] = wotresult[1]
                 results['rank'] = 'friend'
                 CosmosFramework.ReplaceItem(results['_self'],results)
-                #TODO Send Update Notice to service bus
+                #TODO Send Update
+                DiscordBotFramework.checkroles(results['discordid'])
+                
 
 RunUpdate()
