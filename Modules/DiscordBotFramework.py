@@ -23,7 +23,7 @@ async def register(message: object) -> dict:
     authordiscordid = message.author.id
     link = CommonFramework.RetrieveConfigOptions("registration")
     link = link['flaskuri']
-    returnmessage = dict()
+    returnmessage = {}
     result = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.discordid = "{0}"'.format(authordiscordid))
     if not bool(result): #meaning no result
         document = dict()
@@ -49,6 +49,7 @@ def checkroles(discordid:str) -> None:
         for result in results:
             listofroles.append(result['discordid'])
         return listofroles
+
     config = CommonFramework.RetrieveConfigOptions('discord')
     playerresult = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.discordid="{0}"'.format(discordid),'users')
     if not bool(playerresult): #Meaning unknown Discord ID
@@ -57,7 +58,7 @@ def checkroles(discordid:str) -> None:
     resproles = get_responsible_roles() #Roles controlled by the bot
     userroles = DiscordFramework.GetUserRoles(discordid,config['serverid'])
     if playerresult['rank'] == "friend":
-        friendrole = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wotrank = "friend"')
+        friendrole = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wotrank = "friend"','roles')
         friendrole = friendrole[0]
         friendrole = friendrole['discordid']
         if friendrole not in userroles:
@@ -73,6 +74,11 @@ def checkroles(discordid:str) -> None:
             DiscordFramework.AddUserRole(userrankrole,discordid,config['serverid'])
         resproles.remove(userclanrole)
         resproles.remove(userrankrole)
-    ##TODO Removing Roles no longer required
+    commonroles = set(resproles) & set(userroles)
+    if bool(commonroles): #Meaning there is roles showing up
+        for role in commonroles:
+            DiscordFramework.RemoveUserRole(role,discordid,config['serverid'])
+
+    return None
 
 #Private def
