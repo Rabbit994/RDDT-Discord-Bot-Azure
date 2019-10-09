@@ -30,7 +30,7 @@ async def register(message: object) -> dict:
         document['discordid'] = str(authordiscordid) #Discord IDs are in strings
         document['wgtoken'] = str(genToken(str(authordiscordid)))
         CosmosFramework.InsertItem(document)
-        returnmessage['channel'] = "Please see your private messages to register"
+        returnmessage['channel'] = "Welcome {0}! Check your direct messages for a link.".format(message.author.display_name)
         returnmessage['author'] = genURL(document['wgtoken'])
     elif result[0]['wgid'] is not None:
         returnmessage['author'] = "You have already registered"

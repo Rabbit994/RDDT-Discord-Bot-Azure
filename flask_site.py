@@ -8,28 +8,28 @@ import re
 import Modules.CommonFramework as CommonFramework
 import Modules.CosmosFramework as CosmosFramework
 
-mysqlcur = CommonFramework.SQLConn()
+#Flask Setup
+config = CommonFramework.RetrieveConfigOptions('registration')
 
+app_id = config['app_id']
+oid = OpenID()
 app = Flask(__name__)
-app.secret_key='not_so_secret'
+app.secret_key = config['app_secret']
 
 port = 8080
 wgid_handler = '/wgid/redirect'
-response_message = 'Rabbot has accepted your offering.'
+response_message = 'Processing registration'
 login_message = 'Please click here to log in with wargaming'
 auth_url = '/wgid/auth'
 
 min_battles = 0
 
-config = CommonFramework.RetrieveConfigOptions('registration')
 
-app_id = config['app_id']
-oid = OpenID()
 
 @app.route(auth_url)
 def landing_page():
     if 'token' not in request.values:
-        return 'DANGIT RABBIT YOU BROKE IT'
+        return 'Invalid request'
     session['token'] = request.values['token']
     
     return "<a href='{}'>{}</a>".format(wgid_handler, login_message)
@@ -64,44 +64,18 @@ def respond_to_login(resp):
     elif token == "00000000":
         response_message += "Token invalid. If you think this is incorrect, contact an Administrator <br/>"
     else:
-        def existsInUsers(col, val):
-            # unsecure af, but works while normal way doesn't?
-            query = "SELECT * FROM users WHERE {}".format(col)
-            query += " = %s"
-            # print(query)
-            mysqlcur.execute(query, (val,))
-            ret = mysqlcur.fetchone()
-            return ret is not None
-
-        def checkUsers():
-            mysqlcur.execute("SELECT * FROM users")
-            ret = mysqlcur.fetchone()
-            while ret is not None:
-                print(ret)
-                ret = mysqlcur.fetchone()
-
-        # checkUsers()
-
-        # Check if user is attempted to sign in
-        if existsInUsers('wgtoken', token):
-            #Check if user has already signed the WG account it
-            if existsInUsers('wgid', wgid): 
-                #So they had WGID in system before, these people fucking suck
-                response_message += "This account has already been registered. If this is an issue, contact an Administrator to fix. <br/>"
-            else:
-                if min_battles != 0 & False: #Check for enough battles (TODO complete this)
-                    response_message += "You do not have a sufficient number of WoT battles. Note: WG takes some time to update their information. Please try again later."
-                #Token sanity check
-                elif existsInUsers("wgtoken", token):
-                    #Clear out token and prep for Cron job
-                    cmd = "UPDATE users SET wgid = %s, wgtoken = '00000000', updated = 1 WHERE wgtoken = %s"
-                    mysqlcur.execute(cmd, (wgid,token))
-                    response_message += "You have been registered Please note it can take up to 15 minutes for Reddit Family Bot to process changes.<br/>"
-                else:
-                    #Should never reach here as token should get wiped. Most likely case is spam attempts by user. 
-                    response_message += "ERROR HAS OCCURED. Please contact an Administrator and give him debug information. <br/>"
+        results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wgtoken = "{0}"'.format(token),'users')
+        if not bool(results):
+            response_message += "Unknown token"
         else:
-            response_message = "Your token is not found. Most likely you were already added to database, but the Bot is under high load. Please close this page and wait for Reddit Family Bot to catch up."
+            results = results[0]
+            results['wgid'] = int(wgid)
+            results['server'] = 'NA'
+            results['clan'] = None
+            results['rank'] = None
+            results['wgtoken'] = '00000000'
+            CosmosFramework.ReplaceItem(results['_self'],results)
+            response_message += "You have been added to database. Updater will process you in 15 minutes or less."
     
     #End Processing code block
     return '{} <br/><br/> Debug Info:  WGID: {}, Token: {}'.format(response_message,wgid,token) 
