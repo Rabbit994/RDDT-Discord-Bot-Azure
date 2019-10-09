@@ -15,7 +15,7 @@ def RunUpdate():
 
     familyclans = get_responsible_clans()
 
-    results = CosmosFramework.QueryItems("SELECT * FROM c WHERE c.wgid <> null")
+    results = CosmosFramework.QueryItems("SELECT * FROM c WHERE c.wgid <> null AND c.server = 'NA'")
     users = {}
     userinfo = {}
     for result in results:
