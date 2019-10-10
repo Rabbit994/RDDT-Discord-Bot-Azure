@@ -82,8 +82,8 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                         returnmessage = DiscordBotFramework.cone(body)
                         __return_message(body,returnmessage)
                 elif discordmessage[0] == '!ping':
-                    pass
-
+                    returnmessage['channel'] = 'pong!'
+                    
                 sbmessage.complete()
         except:
             pass
