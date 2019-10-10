@@ -41,6 +41,8 @@ def __return_message(body:dict, returnmessage:dict) -> None:
         DiscordFramework.SendDiscordMessage(returnmessage['channel'],body['guildchannelid'])
     if 'author' in returnmessage:
         DiscordFramework.send_discord_private_message(returnmessage['author'],body['authorid'])
+    if 'target' in returnmessage and 'targetdiscordid' in returnmessage:
+        DiscordFramework.send_discord_private_message(returnmessage['target'],returnmessage['targetdiscordid'])
     return None
 
 with sbclient.get_receiver(prefetch=5) as queue_receiver:
@@ -76,7 +78,9 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                 elif discordmessage[0] == '!status':
                     returnmessage = DiscordBotFramework.status(body)
                 elif discordmessage[0] == '!cone':
-                    pass
+                    if body['kick_members'] is True:
+                        returnmessage = DiscordBotFramework.cone(body)
+                        __return_message(body,returnmessage)
                 elif discordmessage[0] == '!ping':
                     pass
 

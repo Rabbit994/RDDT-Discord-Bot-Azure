@@ -3,6 +3,7 @@
 
 import hashlib
 import datetime
+import time
 
 import Modules.CommonFramework as CommonFramework
 import Modules.CosmosFramework as CosmosFramework
@@ -54,7 +55,7 @@ def update(message):
         if not bool(results): #unknown Discord id
             returnmessage['channel'] = "Unknown Discord ID"
             return returnmessage
-        checkroles = str(discordid)
+        checkroles(str(discordid))
         returnmessage['channel'] = "Roles checked and adjusted. If roles do not match, it's likely Wargaming API or bot is not up to date. Wait 15 minutes and check again."
         return returnmessage
     except:
@@ -126,6 +127,34 @@ def checkroles(discordid:str) -> None:
             DiscordFramework.RemoveUserRole(role,discordid,config['serverid'])
 
     return None
+
+def cone(body:dict) -> dict:
+    """Cones user, adds information to database and sends return messages"""
+    discordmessage = body['message'].split()
+    ConeOfShameDiscordId = '525870180505747467'
+    returnmessage = {}
+    config = CommonFramework.RetrieveConfigOptions('discord')
+    try:
+        if len(discordmessage) < 3:
+            returnmessage['author'] = 'Invalid command format'
+            return returnmessage
+        timetocone = int(discordmessage[2])
+        if timetocone > 2880:
+            returnmessage['author'] = 'You cannot Cone someone longer then 2 days'
+            return returnmessage
+        discordid = int(__discord_id_from_mention(discordmessage[1])) ##Trys int to make sure it's int
+        result = __query_cosmos_for_info_by_discordid(discordid)
+        if 'cone' in result:
+            returnmessage['author'] = 'User is already coned'
+        statuscode = DiscordFramework.AddUserRole(ConeOfShameDiscordId,discordid,config['serverid'])
+        if statuscode == 204: #Meaning add role was successful
+            result['cone'] = int(time.time()) + (60 * int(amountoftime))
+            CosmosFramework.ReplaceItem(result['_self'],result)
+            returnmessage['channel'] = '{0} muted user for {1} minutes'.format(body['authordisplayname'],timetocone)
+            returnmessage['author'] = 'Cone issued as requested'
+            returnmessage['targetdiscordid'] = discordid
+            returnmessage['target'] = 'You were muted for {0} minutes by {1}'.format(timetocone,body['authordisplayname'])
+        
 
 #Private def
 
