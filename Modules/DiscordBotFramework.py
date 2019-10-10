@@ -1,3 +1,6 @@
+#This module handles the bot commands
+#Outbound messages should be put back into dict and returned to message_handler for outbound message processing
+
 import hashlib
 import datetime
 
@@ -6,7 +9,7 @@ import Modules.CosmosFramework as CosmosFramework
 import Modules.DiscordFramework as DiscordFramework
 
 #Public def
-async def register(message: object) -> dict:
+def register(message: dict) -> dict:
     """Registration"""
     def genToken(discordId: str) -> str:
         time = str(datetime.datetime.utcnow().microsecond) # only microseconds in last second. i.e. <100
@@ -20,17 +23,17 @@ async def register(message: object) -> dict:
         link = link['flaskuri']
         return "{0}?token={1}".format(link,token)
 
-    authordiscordid = message.author.id
+    authordiscordid = message['authorid']
     link = CommonFramework.RetrieveConfigOptions("registration")
     link = link['flaskuri']
     returnmessage = {}
     result = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.discordid = "{0}"'.format(authordiscordid))
     if not bool(result): #meaning no result
-        document = dict()
+        document = {}
         document['discordid'] = str(authordiscordid) #Discord IDs are in strings
         document['wgtoken'] = str(genToken(str(authordiscordid)))
         CosmosFramework.InsertItem(document)
-        returnmessage['channel'] = "Welcome {0}! Check your direct messages for a link.".format(message.author.display_name)
+        returnmessage['channel'] = "Welcome {0}! Check your direct messages for a link.".format(message['authordisplayname'])
         returnmessage['author'] = genURL(document['wgtoken'])
     elif result[0]['wgid'] is not None:
         returnmessage['author'] = "You have already registered"
@@ -38,12 +41,53 @@ async def register(message: object) -> dict:
         returnmessage['author'] = genURL(document['wgtoken'])
     return returnmessage
 
-async def info(message):
+def info(message):
     returnmessage = dict()
     result = CosmosFramework.QueryItems('SELECT ')
 
+def update(message):
+    returnmessage = {}
+    discordmessage = message['message'].split()
+    try:
+        discordid = int(discordmessage[1])
+        results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.discordid="{0}"'.format(discordid))
+        if not bool(results): #unknown Discord id
+            returnmessage['channel'] = "Unknown Discord ID"
+            return returnmessage
+        checkroles = str(discordid)
+        returnmessage['channel'] = "Roles checked and adjusted. If roles do not match, it's likely Wargaming API or bot is not up to date. Wait 15 minutes and check again."
+        return returnmessage
+    except:
+        returnmessage['channel'] = "You did not pass in numerical Discord ID. See Pizar/Canteen for how to get that information"
+        return returnmessage
+
+def status(message):
+    discordmessage = message['message'].split()
+    returnmessage = {}
+    if len(discordmessage) < 2:
+        returnmessage['author'] = "You did not supply Discord ID or User Mention"
+    discordid = __discord_id_from_mention(discordmessage[1])
+    try:
+        discordid = int(discordid)
+        result = __query_cosmos_for_info_by_discordid(str(discordid))
+        if result is None:
+            returnmessage['author'] = "User has not registered with the bot"
+        elif result['wgtoken'] != '0000000':
+            returnmessage['author'] = "User has requested registration but not completed registration"
+        elif result['wgid'] is not None and result['rank'] is None:
+            returnmessage['author'] = "User has registered properly but awaiting Wargaming API update"
+        else:
+            returnmessage['author'] = "User has completed registration"
+        return returnmessage
+    except:
+        returnmessage['author'] = "An error has occurred"
+        return returnmessage
+        
+        
 def checkroles(discordid:str) -> None:
+    """Checks user for proper roles"""
     def get_responsible_roles() -> list:
+        """Gets a list of Discordid roles that bot thinks it's responsible for"""
         results = CosmosFramework.QueryItems("SELECT DISTINCT(c.discordid) FROM c",'roles')
         listofroles = []
         for result in results:
@@ -84,3 +128,19 @@ def checkroles(discordid:str) -> None:
     return None
 
 #Private def
+
+def __discord_id_from_mention(discordid:str) -> str:
+    """Checks Discord ID from possible mention and returns Discord ID"""
+    if discordid.startswith("<@!"): #This checks to see if Discord ID is actually a mention, if it is, unwrap the id
+        discordid = discordid[3:-1] # format is <@!0123456789> and we need 0123456789
+    elif discordid.startswith("<@"):
+        discordid = discordid[2:-1] #If user hasn't change their nickname, mention becomes <@ instead of <@!
+    return discordid
+
+def __query_cosmos_for_info_by_discordid(discordid:str) -> dict:
+    """Querys Cosmos for user info and returns first entry"""
+    results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.discordid="{0}"'.format(discordid),'users')
+    if not bool(results):
+        return None
+    else:
+        return results[0]

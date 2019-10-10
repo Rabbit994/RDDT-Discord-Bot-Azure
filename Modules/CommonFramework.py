@@ -25,3 +25,7 @@ def convert_date_time_epoch(datetime:str) -> int:
     t_in_seconds = parsed_t.timestamp()
     return int(t_in_seconds)
 
+def GetClanBattles(clanid):
+    clantoolsurl = 'https://sv.clantools.us/integrations/battles/report?provider=na&tz=et&service=slack&clan_id={0}'.format(clanid)
+    data = get_json_data(clantoolsurl)
+    return data

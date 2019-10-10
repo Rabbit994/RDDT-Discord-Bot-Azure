@@ -1,9 +1,15 @@
+#This handles incoming discord messages
+
 import json
 from time import sleep
+import requests
+##3rd Party Modules
 from azure.servicebus import QueueClient, Message
 ##Local Modules
 import Modules.CosmosFramework as CosmosFramework
 import Modules.CommonFramework as CommonFramework
+import Modules.DiscordFramework as DiscordFramework
+import Modules.DiscordBotFramework as DiscordBotFramework
 
 #region Service Bus for incoming
 config = CommonFramework.RetrieveConfigOptions('discordlisten')
@@ -11,15 +17,8 @@ connection_str = config['connectionstring']
 queue = config['queue']
 sbclient = QueueClient.from_connection_string(connection_str,queue)
 #endregion
-#region Service Bus for Outgoing
-outboundeventhuboptions = CommonFramework.RetrieveConfigOptions('discordoutgoing')
-outbound_connection_str = outboundeventhuboptions['connectionstring']
-outbound_queue = outboundeventhuboptions['queue']
-sboutboundclient = QueueClient.from_connection_string(outbound_connection_str,outbound_queue)
-#endregion
 
-errorcount = 0
-
+#region Unused (?)
 def create_channel_message_json(target:str,message:str=None,embed:dict=None) -> str:
     returnmessage = {}
     returnmessage['privatemessage'] = False
@@ -34,7 +33,15 @@ def create_channel_message_json(target:str,message:str=None,embed:dict=None) -> 
         returnmessage['embed'] = None
     returnmessagejson = json.dumps(returnmessage)
     return returnmessagejson
+#endregion
 
+def __return_message(body:dict, returnmessage:dict) -> None:
+    """Gets original message and return message and sends to proper channels"""
+    if 'channel' in returnmessage:
+        DiscordFramework.SendDiscordMessage(returnmessage['channel'],body['guildchannelid'])
+    if 'author' in returnmessage:
+        DiscordFramework.send_discord_private_message(returnmessage['author'],body['authorid'])
+    return None
 
 with sbclient.get_receiver(prefetch=5) as queue_receiver:
     while True:
@@ -43,33 +50,36 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
             for sbmessage in messages:
                 body = str(sbmessage.message)
                 body = json.loads(body)
+                discordmessage = body['message'].split()
                 #print(body)
-                if body['isadmin'] is True and body['botmention'] is True: #If the user is not admin, ignore
-                    discordmessage = body['message'].split()
-                    if discordmessage[1] == 'status':
-                        messageembed = AdminFramework.status(body)
-                        sboutboundclient.send(Message(create_channel_message_json(embed=messageembed,target=body['guildchannelid'])))
-                    elif discordmessage[1] == 'ping':
-                        message = AdminFramework.ping(body)
-                        sboutboundclient.send(Message(create_channel_message_json(target=body['guildchannelid'],message=message)))
-                    elif discordmessage[1] == 'channel':
-                        message = AdminFramework.channel(body)
-                        sboutboundclient.send(Message(create_channel_message_json(target=body['guildchannelid'],message=message)))
-                    elif discordmessage[1] == 'locationadd':
-                        message = AdminFramework.locationadd(body)
-                        sboutboundclient.send(Message(create_channel_message_json(target=body['guildchannelid'],message=message)))
-                    elif discordmessage[1] == 'locationremove':
-                        message = AdminFramework.locationremove(body)
-                        sboutboundclient.send(Message(create_channel_message_json(target=body['guildchannelid'],message=message)))
-                    elif discordmessage[1] == 'severity':
-                        message = AdminFramework.severity(body)
-                        sboutboundclient.send(Message(create_channel_message_json(target=body['guildchannelid'],message=message)))
-                    elif discordmessage[1] == 'help':
-                        messageembed = AdminFramework.help(body)
-                        sboutboundclient.send(Message(create_channel_message_json(target=body['guildchannelid'],embed=messageembed)))
-                    elif discordmessage[1] == 'guildaddevent':
-                        message = "Please Mention bot with word help to get started"
-                        sboutboundclient.send(Message(create_channel_message_json(target=body['guildchannelid'],message=message)))
+                if discordmessage[0] == '!register':
+                    returnmessage = DiscordBotFramework.register(body)
+                    if 'privatemessage' in body:
+                        del returnmessage['channel']
+                    __return_message(body,returnmessage)
+                
+                elif discordmessage[0] == '!cw':
+                    if body['guildchannelid'] == 508848701058318366: #RDDT
+                        data = CommonFramework.GetClanBattles(1000001505)
+                        webhooks = CommonFramework.RetrieveConfigOptions('webhooks')
+                        requests.post(webhooks['rddt'], data=data)
+                    elif body['guildchannelid'] == 508849107855474688: #TL-DR
+                        data = CommonFramework.GetClanBattles(1000003392)
+                        webhooks = CommonFramework.RetrieveConfigOptions('webhooks')
+                        requests.post(webhooks['tl-dr'], data=data)
+                
+                elif discordmessage[0] == '!update':
+                    if body['guildchannelid'] == 506659095521132554:
+                        returnmessage = DiscordBotFramework.update(body)
+                        __return_message(body,returnmessage)
+                
+                elif discordmessage[0] == '!status':
+                    returnmessage = DiscordBotFramework.status(body)
+                elif discordmessage[0] == '!cone':
+                    pass
+                elif discordmessage[0] == '!ping':
+                    pass
+
                 sbmessage.complete()
         except:
             pass
