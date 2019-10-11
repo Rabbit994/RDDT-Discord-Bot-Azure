@@ -1,0 +1,19 @@
+version: '3'
+services:
+  drblistener:
+    image: 'drblistener:latest'
+    restart: always
+  drbhandler:
+    image: 'drbhandler:latest'
+    restart: always
+  drbconeremover:
+    image: 'drbconeremover:latest'
+    restart: always
+  drbwotupdater:
+    image: 'drbwotupdater:latest'
+    restart: always
+  drbflasksite:
+    image: 'drbflasksite:latest'
+    restart: always
+    ports:
+      - '443:8080'
