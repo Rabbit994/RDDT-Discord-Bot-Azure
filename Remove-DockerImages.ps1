@@ -1,0 +1,5 @@
+Start-Process 'docker' -ArgumentList "rmi drblistener:latest"
+Start-Process 'docker' -ArgumentList "rmi drbhandler:latest"
+Start-Process 'docker' -ArgumentList "rmi drbconeremover:latest"
+Start-Process 'docker' -ArgumentList "rmi drbwotupdater:latest"
+Start-Process 'docker' -ArgumentList "rmi dwbadminhandler:latest"

@@ -1,0 +1,5 @@
+Start-Process 'docker' -ArgumentList "run -d --restart always --name drblistener drblistener:latest"
+Start-Process 'docker' -ArgumentList "run -d --restart always --name drbhandler drbhandler:latest"
+Start-Process 'docker' -ArgumentList "run -d --restart always --name drbconeremover drbconeremover:latest"
+Start-Process 'docker' -ArgumentList "run -d --restart always --name drbwotupdater drbwotupdater:latest"
+Start-Process 'docker' -ArgumentList "run -d --restart always -p 8080:8080 --name drbflasksite drbflasksite:latest"
