@@ -14,9 +14,6 @@ def CheckCones() -> None:
                 del result['cone']
                 CosmosFramework.ReplaceItem(result['_self'],result)
 
-        
-    
-
 def __remove_cone_role(discordid:str) -> int:
     ConeOfShameDiscordId = '525870180505747467'
     config = CommonFramework.RetrieveConfigOptions('discord')
