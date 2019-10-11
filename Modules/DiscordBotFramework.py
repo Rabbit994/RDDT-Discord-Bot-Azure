@@ -42,10 +42,6 @@ def register(message: dict) -> dict:
         returnmessage['author'] = genURL(document['wgtoken'])
     return returnmessage
 
-def info(message):
-    returnmessage = dict()
-    result = CosmosFramework.QueryItems('SELECT ')
-
 def update(message):
     returnmessage = {}
     discordmessage = message['message'].split()
@@ -148,12 +144,14 @@ def cone(body:dict) -> dict:
             returnmessage['author'] = 'User is already coned'
         statuscode = DiscordFramework.AddUserRole(ConeOfShameDiscordId,discordid,config['serverid'])
         if statuscode == 204: #Meaning add role was successful
-            result['cone'] = int(time.time()) + (60 * int(amountoftime))
+            result['cone'] = int(time.time()) + (60 * int(timetocone))
             CosmosFramework.ReplaceItem(result['_self'],result)
             returnmessage['channel'] = '{0} muted user for {1} minutes'.format(body['authordisplayname'],timetocone)
             returnmessage['author'] = 'Cone issued as requested'
             returnmessage['targetdiscordid'] = discordid
             returnmessage['target'] = 'You were muted for {0} minutes by {1}'.format(timetocone,body['authordisplayname'])
+    except Exception as e:
+        returnmessage['author'] = 'Following error has occured: {0}'.format(e)
         
 
 #Private def
