@@ -13,7 +13,7 @@ import Modules.CosmosFramework as CosmosFramework
 discordoptions = CommonFramework.RetrieveConfigOptions('discord')
 token = discordoptions['token']
 discordclient = discord.Client()
-commandprefix = '?'
+commandprefix = '!'
 
 #Discord Incoming Service Bus setup
 servicebusoptions = CommonFramework.RetrieveConfigOptions('discordlisten')
