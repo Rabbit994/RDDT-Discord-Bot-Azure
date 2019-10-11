@@ -1,4 +1,5 @@
 #This module handles World of Tanks Clan Updates
+from time import sleep
 
 import Modules.CosmosFramework as CosmosFramework
 import Modules.wotframework as wotframework
@@ -56,3 +57,4 @@ def RunUpdate():
                 
 
 RunUpdate()
+sleep(900) #Sleep for 15 minutes before restarting
