@@ -31,4 +31,4 @@ services:
     image: 'drbflasksite:latest'
     restart: always
     ports:
-      - '8080:8080'
+      - '443:8080'
