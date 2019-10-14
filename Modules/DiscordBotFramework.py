@@ -140,7 +140,7 @@ def cone(body:dict) -> dict:
             return returnmessage
         discordid = int(__discord_id_from_mention(discordmessage[1])) ##Trys int to make sure it's int
         result = __query_cosmos_for_info_by_discordid(discordid)
-        if None in result:
+        if result is None:
             newitem = {}
             newitem['discordid'] = str(discordid)
             result = CosmosFramework.InsertItem(newitem,'users')
