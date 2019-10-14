@@ -2,7 +2,7 @@
 param (
     # Parameter help description
     [Parameter(Mandatory=$true,HelpMessage="Build Type")]
-    [ParameterValidateSet('build','run','both')]
+    [ValidateSet('build','run','both')]
     [string]
     $BuildType
 )
