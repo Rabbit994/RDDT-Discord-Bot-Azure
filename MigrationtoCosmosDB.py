@@ -37,5 +37,6 @@ for row in data:
     csdbdoc['wotclan'] = row[1]
     csdbdoc['wotrank'] = row[2]
     csdbdoc['wotserver'] = 'NA'
+    csdbdoc['discordserver'] = '414198832092545037'
     CosmosFramework.InsertItem(csdbdoc,'roles')
     time.sleep(.03)

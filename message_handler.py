@@ -54,7 +54,7 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                 body = json.loads(body)
                 discordmessage = body['message'].split()
                 #print(body)
-                if discordmessage[0] == '!register':
+                if discordmessage[0] == '!register' and body['guildchannelid'] == 507725600073449482:
                     returnmessage = DiscordBotFramework.register(body)
                     if 'privatemessage' in body:
                         del returnmessage['channel']
@@ -77,12 +77,14 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                 
                 elif discordmessage[0] == '!status':
                     returnmessage = DiscordBotFramework.status(body)
+                    __return_message(body,returnmessage)
                 elif discordmessage[0] == '!cone':
                     if body['kick_members'] is True:
                         returnmessage = DiscordBotFramework.cone(body)
                         __return_message(body,returnmessage)
                 elif discordmessage[0] == '!ping':
                     returnmessage['channel'] = 'pong!'
+                    __return_message(body,returnmessage)
                     
                 sbmessage.complete()
         except:
