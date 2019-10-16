@@ -1,0 +1,28 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: DownloadSecureFile@1
+  inputs:
+    secureFile: 'parameters.json'
+- task: CopyFiles@2
+  inputs:
+    Contents: 'parameters.json'
+    TargetFolder: 'parameters'
+- task: DockerCompose@0
+  inputs:
+    containerregistrytype: 'Azure Container Registry'
+    azureSubscription: 'Microsoft Partner Network(5da5c7b5-0878-4c8b-8f5d-c870cc3eec80)'
+    azureContainerRegistry: '{"loginServer":"rddtdiscordbot.azurecr.io", "id" : "/subscriptions/5da5c7b5-0878-4c8b-8f5d-c870cc3eec80/resourceGroups/Discord-RDDT-Bot-RG/providers/Microsoft.ContainerRegistry/registries/rddtdiscordbot"}'
+    dockerComposeFile: '**/docker-compose.yml'
+    action: 'Run a Docker Compose command'
+    dockerComposeCommand: 'build'
+
