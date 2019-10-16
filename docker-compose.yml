@@ -27,7 +27,7 @@ services:
   drbflasksite:
     build:
         context: .
-        dockerfile: wot_updater.dockerfile
+        dockerfile: flask_site.dockerfile
     image: 'drbflasksite:latest'
     restart: always
     ports:
