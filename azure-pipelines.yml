@@ -16,8 +16,8 @@ steps:
     secureFile: 'parameters.json'
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(parameters.secureFilePath)'
-    Contents: '*'
+    SourceFolder: '$(Agent.TempDirectory)'
+    Contents: 'parameters.json'
     TargetFolder: 'parameters'
 - task: DockerCompose@0
   inputs:
