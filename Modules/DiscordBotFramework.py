@@ -47,7 +47,7 @@ def update(message):
     discordmessage = message['message'].split()
     try:
         discordid = int(discordmessage[1])
-        results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.discordid="{0}"'.format(discordid))
+        results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.discordid="{0}"'.format(discordid),'users')
         if not bool(results): #unknown Discord id
             returnmessage['channel'] = "Unknown Discord ID"
             return returnmessage
