@@ -8,6 +8,7 @@ import time
 import Modules.CommonFramework as CommonFramework
 import Modules.CosmosFramework as CosmosFramework
 import Modules.DiscordFramework as DiscordFramework
+import Modules.wotframework as wotframework
 
 #Public def
 def register(message: dict) -> dict:
@@ -79,8 +80,7 @@ def status(message):
     except:
         returnmessage['author'] = "An error has occurred"
         return returnmessage
-        
-        
+             
 def checkroles(discordid:str) -> None:
     """Checks user for proper roles"""
     def get_responsible_roles() -> list:
@@ -121,7 +121,6 @@ def checkroles(discordid:str) -> None:
     if bool(commonroles): #Meaning there is roles showing up that shouldn't be there
         for role in commonroles:
             DiscordFramework.RemoveUserRole(role,discordid,config['serverid'])
-
     return None
 
 def cone(body:dict) -> dict:
@@ -157,7 +156,31 @@ def cone(body:dict) -> dict:
     except Exception as e:
         returnmessage['author'] = 'Following error has occured: {0}'.format(e)
         
+def citadel(body:dict) -> dict:
+    returnmessage = {}
+    result = __query_cosmos_for_info_by_discordid(str(body['authorid']))
+    if result is None or 'wgid' not in result:
+        returnmessage['author'] = "You have not registered with the bot, this is mandatory. Please visit <#507725600073449482> to register or please complete registration."
+        return returnmessage
+    else:
+        wgid = [int(result['wgid'])]
+        claninfo = wotframework.GetPlayersClanInfo(wgid)
+        claninfo = claninfo[0]
+        if claninfo[1] is None:
+            returnmessage['author'] = "You are not a member of clan, citadel access is denied" 
+            return returnmessage
+        elif claninfo[2] not in ['commander','executive_officer','combat_officer','personnel_officer']:
+            returnmessage['author'] = "Citadel access is restricted to Clan officers only"
+            return returnmessage
+        ##TODO Get criteria
+        
+        
+        
+        
 
+    
+        
+    
 #Private def
 
 def __discord_id_from_mention(discordid:str) -> str:
