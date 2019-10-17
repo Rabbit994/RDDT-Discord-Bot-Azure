@@ -29,9 +29,10 @@ def RunUpdate():
     listofusers = []
     wotresults = []
     for user in users:
-        if len(listofusers) < 100:
+        if len(listofusers) < 99:
             listofusers.append(user)
         else:
+            listofusers.append(user)
             wotresults += wotframework.GetPlayersClanInfo(listofusers)
             listofusers.clear()
     wotresults += wotframework.GetPlayersClanInfo(listofusers)
@@ -43,7 +44,6 @@ def RunUpdate():
                 results['clan'] = wotresult[1]
                 results['rank'] = wotresult[2]
                 CosmosFramework.ReplaceItem(results['_self'],results)
-                #TODO Send Update
                 DiscordBotFramework.checkroles(results['discordid'])
         else:
             if users[wotresult[0]]['clan'] != wotresult[1] or users[wotresult[0]]['rank'] != 'friend':
@@ -52,7 +52,6 @@ def RunUpdate():
                 results['clan'] = wotresult[1]
                 results['rank'] = 'friend'
                 CosmosFramework.ReplaceItem(results['_self'],results)
-                #TODO Send Update
                 DiscordBotFramework.checkroles(results['discordid'])
                 
 
