@@ -70,7 +70,7 @@ def status(message):
         result = __query_cosmos_for_info_by_discordid(str(discordid))
         if result is None:
             returnmessage['author'] = "User has not registered with the bot"
-        elif result['wgtoken'] != '0000000':
+        elif result['wgtoken'] != '00000000':
             returnmessage['author'] = "User has requested registration but not completed registration"
         elif result['wgid'] is not None and result['rank'] is None:
             returnmessage['author'] = "User has registered properly but awaiting Wargaming API update"
