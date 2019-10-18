@@ -172,7 +172,10 @@ def citadel(body:dict) -> dict:
         elif claninfo[2] not in ['commander','executive_officer','combat_officer','personnel_officer']:
             returnmessage['author'] = "Citadel access is restricted to Clan officers only"
             return returnmessage
+        
         ##TODO Get criteria
+        #Criteria are rank and member of CW clan
+        #https://api.worldoftanks.com/wot/clanratings/top/?application_id={0}&rank_field=gm_elo_rating&limit=200.format(wgtoken)
         
         
         
