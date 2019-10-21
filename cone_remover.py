@@ -5,6 +5,12 @@ import Modules.CommonFramework as CommonFramework
 import Modules.DiscordFramework as DiscordFramework
 
 def CheckCones() -> None:
+    def __remove_cone_role(discordid:str) -> int:
+        ConeOfShameDiscordId = '525870180505747467'
+        config = CommonFramework.RetrieveConfigOptions('discord')
+        status_code = DiscordFramework.RemoveUserRole(ConeOfShameDiscordId,discordid,config['serverid'])
+        return status_code
+
     currenttime = int(time.time())
     results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.cone < {0}'.format(currenttime))
     if bool(results): #meaning people to process
@@ -13,12 +19,6 @@ def CheckCones() -> None:
             if status_code == 204:
                 del result['cone']
                 CosmosFramework.ReplaceItem(result['_self'],result)
-
-def __remove_cone_role(discordid:str) -> int:
-    ConeOfShameDiscordId = '525870180505747467'
-    config = CommonFramework.RetrieveConfigOptions('discord')
-    status_code = DiscordFramework.RemoveUserRole(ConeOfShameDiscordId,discordid,config['serverid'])
-    return status_code
 
 try:
     CheckCones()
