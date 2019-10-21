@@ -172,8 +172,20 @@ def citadel(body:dict) -> dict:
         elif claninfo[2] not in ['commander','executive_officer','combat_officer','personnel_officer']:
             returnmessage['author'] = "Citadel access is restricted to Clan officers only"
             return returnmessage
+        else:
+            results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wgid = {0}'.format(claninfo[1]))
+        if bool(results): #Meaning their clan ID is in citadel container
+            result = results[0]
+            if result['citadel'] is True:
+                ##TODO Get Citadel Role ID and add
+                pass
+            else:
+                returnmessage['author'] = 'Citadel access is restricted to clans who rank on Global Map ELO. If you believe access should be granted, please see moderator.'
+        else:
+            returnmessage['author'] = 'Citadel access is restricted to clans who rank on Global Map ELO. If you believe access should be granted, please see moderator.'
+
         
-        ##TODO Get criteria
+        ##TODO Get criteria 
         #Criteria are rank and member of CW clan
         #https://api.worldoftanks.com/wot/clanratings/top/?application_id={0}&rank_field=gm_elo_rating&limit=200.format(wgtoken)
         
