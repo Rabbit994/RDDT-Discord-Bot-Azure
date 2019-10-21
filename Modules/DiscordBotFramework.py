@@ -188,14 +188,7 @@ def citadel(body:dict) -> dict:
         ##TODO Get criteria 
         #Criteria are rank and member of CW clan
         #https://api.worldoftanks.com/wot/clanratings/top/?application_id={0}&rank_field=gm_elo_rating&limit=200.format(wgtoken)
-        
-        
-        
-        
 
-    
-        
-    
 #Private def
 
 def __discord_id_from_mention(discordid:str) -> str:
