@@ -70,22 +70,25 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                             data = CommonFramework.GetClanBattles(1000003392)
                             webhooks = CommonFramework.RetrieveConfigOptions('webhooks')
                             requests.post(webhooks['tl-dr'], data=data)
-                    
+
                     elif discordmessage[0] == '!update':
                         if body['guildchannelid'] == 506659095521132554:
                             returnmessage = DiscordBotFramework.update(body)
                             __return_message(body,returnmessage)
-                    
+
                     elif discordmessage[0] == '!status':
                         returnmessage = DiscordBotFramework.status(body)
                         __return_message(body,returnmessage)
+
                     elif discordmessage[0] == '!cone':
                         if body['kick_members'] is True:
                             returnmessage = DiscordBotFramework.cone(body)
                             __return_message(body,returnmessage)
+
                     elif discordmessage[0] == '!ping':
                         returnmessage = {'channel':'pong!'}
                         __return_message(body,returnmessage)
+                        
                     elif discordmessage[0] == '!citadel':
                         returnmessage = DiscordBotFramework.citadel(body)
                         __return_message(body,returnmessage)
