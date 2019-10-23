@@ -65,7 +65,7 @@ async def on_raw_reaction_add(payload):
     discordmessage['emojiname'] = payload.emoji.name
     jsonmessage = json.dumps(discordmessage)
     eventdata = (Message(jsonmessage))
-    #servicebusclient.send(eventdata) Keep off servicebus until message_handler.py is rewritten to handle it
+    servicebusclient.send(eventdata)
 
 @discordclient.event
 async def on_raw_reaction_remove(payload):
@@ -81,6 +81,6 @@ async def on_raw_reaction_remove(payload):
     discordmessage['emojiname'] = payload.emoji.name
     jsonmessage = json.dumps(discordmessage)
     eventdata = (Message(jsonmessage))
-    #servicebusclient.send(eventdata) Keep off servicebus until message_handler.py is rewritten to handle it
+    servicebusclient.send(eventdata) 
 
 discordclient.run(token)
