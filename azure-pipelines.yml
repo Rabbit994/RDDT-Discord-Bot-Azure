@@ -27,5 +27,5 @@ steps:
     azureContainerRegistry: '{"loginServer":"rddtdiscordbot.azurecr.io", "id" : "/subscriptions/5da5c7b5-0878-4c8b-8f5d-c870cc3eec80/resourceGroups/Discord-RDDT-Bot-RG/providers/Microsoft.ContainerRegistry/registries/rddtdiscordbot"}'
     dockerComposeFile: '**/docker-compose.yml'
     action: 'Run a Docker Compose command'
-    dockerComposeCommand: 'build'
+    dockerComposeCommand: 'build --parallel'
 
