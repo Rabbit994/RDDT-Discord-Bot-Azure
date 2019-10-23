@@ -86,4 +86,3 @@ try:
     time.sleep((60*60) * 6)
 except:
     time.sleep((60*60) * 6)
-    raise Exception
