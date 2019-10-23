@@ -32,3 +32,9 @@ services:
     restart: always
     ports:
       - '8080:8080'
+  drbcitadelcheck:
+    build:
+        context: .
+        dockerfile: citadel_check.dockerfile
+    image: 'drbcitadelcheck:latest'
+    restart: always
