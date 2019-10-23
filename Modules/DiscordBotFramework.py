@@ -158,7 +158,7 @@ def cone(body:dict) -> dict:
         
 def citadel(body:dict) -> dict:
     returnmessage = {}
-    citadelroleid = 636372736322699264
+    citadelroleid = 636372439261249566
     citadelchannelid = 491800495980150789 #Bot Testing Channel
     #citadelchannelid = 636374196355858452 Actual citadel channel
     result = __query_cosmos_for_info_by_discordid(str(body['authorid']))

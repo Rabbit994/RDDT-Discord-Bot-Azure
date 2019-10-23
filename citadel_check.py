@@ -23,13 +23,13 @@ def run_citadel_check():
         return primary
 
     def __exclude_clan_from_citadel(clanid):
-        citadelroleid = 636372736322699264
+        citadelroleid = 636372439261249566
         discordserverid = CommonFramework.RetrieveConfigOptions('discord')
         discordserverid = discordserverid['serverid']
         results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.clan = {0} AND c.citadel = true'.format(clanid))
         for result in results:
             status_code = DiscordFramework.RemoveUserRole(citadelroleid,result['discordid'],discordserverid)
-            if status_code == 200:
+            if status_code == 204 or status_code == 404:
                 del result['citadel']
                 CosmosFramework.ReplaceItem(result['_self'],result)
             else:
@@ -61,7 +61,7 @@ def run_citadel_check():
     clanlist = list(results.keys())
     removeclans = list(set(clanlist) - set(wgidlist)) #List of clans that are removed
     for removeclan in removeclans:
-        claninfo = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wgid={0} AND c.citadel = false'.format(removeclan),'citadel')
+        claninfo = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wgid={0}'.format(removeclan),'citadel')
         claninfo = claninfo[0]
         if 'override' in claninfo and claninfo['override'] is True:
             continue #Overrides are not removed
@@ -72,7 +72,8 @@ def run_citadel_check():
             CosmosFramework.ReplaceItem(claninfo['_self'],claninfo)
         elif claninfo['excludetime'] < int(time.time()):
             __exclude_clan_from_citadel(removeclan)
-            message = "Clan {0} ({1}) has been removed from citadel."
+            message = "Clan {0} ({1}) has been removed from citadel.".format(claninfo['name'],claninfo['tag'])
+            DiscordFramework.SendDiscordMessage(message,citadelchannelid)
             claninfo['citadel'] = False
             claninfo['excludetime'] = None
             claninfo['excludereason'] = 'Excluded due to lack of ELO'
