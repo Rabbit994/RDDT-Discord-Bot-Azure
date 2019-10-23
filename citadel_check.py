@@ -10,7 +10,7 @@ def run_citadel_check():
     def __get_citadel_results() -> dict:
         primary = {}
         secondary = {}
-        results = CosmosFramework.QueryItems('SELECT * FROM c','citadel')
+        results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.citadel = true','citadel')
         for result in results:
             secondary['tag'] = result.get('tag')
             secondary['name'] = result.get('name')
@@ -22,7 +22,9 @@ def run_citadel_check():
             secondary.clear()
         return primary
 
-    citadelchannelid = 491800495980150789
+    citadelchannelid = 491800495980150789 #Bot Testing Channel
+    #citadelchannelid = 636374196355858452 Actual citadel channel
+    citadelroleid = 636372736322699264
     wgapi = CommonFramework.RetrieveConfigOptions('wargaming')
     results = __get_citadel_results()
     apiresults = CommonFramework.get_json_data("https://api.worldoftanks.com/wot/clanratings/top/?application_id={0}&rank_field=gm_elo_rating&limit=200".format(wgapi['apitoken']))
@@ -56,7 +58,7 @@ def run_citadel_check():
             CosmosFramework.ReplaceItem(claninfo['_self'],claninfo)
         elif claninfo['excludetime'] < int(time.time()):
             claninfo['citadel'] = False
-            claninfo['excludereason'] = "Excluded by falling off ELO"
+            claninfo['excludereason'] = "Excluded executed"
 
 
 try:

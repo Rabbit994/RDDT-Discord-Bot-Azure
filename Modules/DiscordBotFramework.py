@@ -158,36 +158,36 @@ def cone(body:dict) -> dict:
         
 def citadel(body:dict) -> dict:
     returnmessage = {}
+    citadelroleid = 636372736322699264
+    citadelchannelid = 491800495980150789 #Bot Testing Channel
+    #citadelchannelid = 636374196355858452 Actual citadel channel
     result = __query_cosmos_for_info_by_discordid(str(body['authorid']))
+    discordserverid = CommonFramework.RetrieveConfigOptions('discord')
+    discordserverid = discordserverid['serverid']
     if result is None or 'wgid' not in result:
         returnmessage['author'] = "You have not registered with the bot, this is mandatory. Please visit <#507725600073449482> to register or please complete registration."
         return returnmessage
+    wgid = [int(result['wgid'])]
+    claninfo = wotframework.GetPlayersClanInfo(wgid)
+    claninfo = claninfo[0]
+    if claninfo[1] is None:
+        returnmessage['author'] = "You are not a member of clan, citadel access is denied" 
+        return returnmessage
+    elif claninfo[2] not in ['commander','executive_officer','combat_officer','personnel_officer']:
+        returnmessage['author'] = "Citadel access is restricted to Clan officers only"
+        return returnmessage
+    results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wgid = {0}'.format(claninfo[1]),'citadel')
+    if bool(results): #Meaning their clan ID is in citadel container
+        result = results[0]
+        if result['citadel'] is True:
+            DiscordFramework.AddUserRole(citadelroleid,body['authorid'],discordserverid)
+            returnmessage['author'] = "Access granted"
+            DiscordFramework.SendDiscordMessage("{0} from {1} has joined the citadel.".format(body['authordisplayname'],result['name']),citadelchannelid)
+        else:
+            returnmessage['author'] = 'Citadel access has been revoked because: {0}. If you believe access should be granted, please see moderator.'.format(result['excludereason'])
     else:
-        wgid = [int(result['wgid'])]
-        claninfo = wotframework.GetPlayersClanInfo(wgid)
-        claninfo = claninfo[0]
-        if claninfo[1] is None:
-            returnmessage['author'] = "You are not a member of clan, citadel access is denied" 
-            return returnmessage
-        elif claninfo[2] not in ['commander','executive_officer','combat_officer','personnel_officer']:
-            returnmessage['author'] = "Citadel access is restricted to Clan officers only"
-            return returnmessage
-        else:
-            results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wgid = {0}'.format(claninfo[1]))
-        if bool(results): #Meaning their clan ID is in citadel container
-            result = results[0]
-            if result['citadel'] is True:
-                ##TODO Get Citadel Role ID and add
-                pass
-            else:
-                returnmessage['author'] = 'Citadel access is restricted to clans who rank on Global Map ELO. If you believe access should be granted, please see moderator.'
-        else:
-            returnmessage['author'] = 'Citadel access is restricted to clans who rank on Global Map ELO. If you believe access should be granted, please see moderator.'
-
-        
-        ##TODO Get criteria 
-        #Criteria are rank and member of CW clan
-        #https://api.worldoftanks.com/wot/clanratings/top/?application_id={0}&rank_field=gm_elo_rating&limit=200.format(wgtoken)
+        returnmessage['author'] = 'Citadel access is restricted to clans who rank on Global Map ELO. If you believe access should be granted, please see moderator.'
+    return returnmessage
 
 #Private def
 
