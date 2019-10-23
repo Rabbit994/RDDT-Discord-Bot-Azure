@@ -29,7 +29,7 @@ def run_citadel_check():
         results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.clan = {0} AND c.citadel = true'.format(clanid))
         for result in results:
             status_code = DiscordFramework.RemoveUserRole(citadelroleid,result['discordid'],discordserverid)
-            if status_code == 204 or status_code == 404:
+            if status_code == 204:
                 del result['citadel']
                 CosmosFramework.ReplaceItem(result['_self'],result)
             else:
@@ -43,7 +43,7 @@ def run_citadel_check():
     results = __get_citadel_results()
     apiresults = CommonFramework.get_json_data("https://api.worldoftanks.com/wot/clanratings/top/?application_id={0}&rank_field=gm_elo_rating&limit=200".format(wgapi['apitoken']))
     wgidlist = []
-    for apiresult in apiresults['data']:
+    for apiresult in apiresults['data']: #Get information about clans from Wargaming API
         wgidlist.append(apiresult['clan_id'])
         if apiresult['clan_id'] not in results:
             item = {}
@@ -53,30 +53,31 @@ def run_citadel_check():
             item['citadel'] = True
             CosmosFramework.InsertItem(item,'citadel')
         elif apiresult['clan_id'] in results and (results[apiresult['clan_id']]['tag'] != apiresult['clan_tag'] or results[apiresult['clan_id']]['name'] != apiresult['clan_name']):
+            #Checks the database and Wargaming API match around clan tag and name, if not, it updates it
             updateitem = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wgid={0}'.format(apiresult['clan_id']),'citadel')
             updateitem = updateitem[0]
             updateitem['name'] = apiresult['clan_name']
             updateitem['tag'] = apiresult['clan_tag']
             CosmosFramework.ReplaceItem(updateitem['_self'],updateitem)
     clanlist = list(results.keys())
-    removeclans = list(set(clanlist) - set(wgidlist)) #List of clans that are removed
+    removeclans = list(set(clanlist) - set(wgidlist)) #List of clans to be removed
     for removeclan in removeclans:
         claninfo = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wgid={0}'.format(removeclan),'citadel')
         claninfo = claninfo[0]
         if 'override' in claninfo and claninfo['override'] is True:
             continue #Overrides are not removed
-        elif 'excludetime' not in claninfo:
-            claninfo['excludetime'] = int(time.time()) + 604800
+        elif 'excludetime' not in claninfo: #Step 2, put in removal time
+            claninfo['excludetime'] = int(time.time()) + 604700 #This is 6 days, 23 hours and ~58 minutes
             message = "WARNING: Clan {0} ({1}) will be removed within 7 days due to lack of clan rating.".format(claninfo['name'],claninfo['tag'])
             DiscordFramework.SendDiscordMessage(message,citadelchannelid)
             CosmosFramework.ReplaceItem(claninfo['_self'],claninfo)
-        elif claninfo['excludetime'] < int(time.time()):
+        elif claninfo['excludetime'] < int(time.time()): #when their time is hit, mark them no longer allowed in citadel with reason and remove all clan members
             __exclude_clan_from_citadel(removeclan)
             message = "Clan {0} ({1}) has been removed from citadel.".format(claninfo['name'],claninfo['tag'])
             DiscordFramework.SendDiscordMessage(message,citadelchannelid)
             claninfo['citadel'] = False
             claninfo['excludetime'] = None
-            claninfo['excludereason'] = 'Excluded due to lack of ELO'
+            claninfo['excludereason'] = 'Excluded due to lack of ranking'
             CosmosFramework.ReplaceItem(claninfo['_self'],claninfo)
 
 try:
@@ -84,5 +85,5 @@ try:
     print("Run Complete")
     time.sleep((60*60) * 6)
 except:
-    raise Exception
     time.sleep((60*60) * 6)
+    raise Exception
