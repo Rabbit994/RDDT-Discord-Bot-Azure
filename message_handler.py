@@ -18,23 +18,6 @@ queue = config['queue']
 sbclient = QueueClient.from_connection_string(connection_str,queue)
 #endregion
 
-#region Unused (?)
-def create_channel_message_json(target:str,message:str=None,embed:dict=None) -> str:
-    returnmessage = {}
-    returnmessage['privatemessage'] = False
-    returnmessage['targetid'] = str(target)
-    if message is not None:
-        returnmessage['content'] = message
-    else:
-        returnmessage['content'] = None
-    if embed is not None:
-        returnmessage['embed'] = embed
-    else:
-        returnmessage['embed'] = None
-    returnmessagejson = json.dumps(returnmessage)
-    return returnmessagejson
-#endregion
-
 def __return_message(body:dict, returnmessage:dict) -> None:
     """Gets original message and return message and sends to proper channels"""
     if 'channel' in returnmessage:
