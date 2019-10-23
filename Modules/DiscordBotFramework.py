@@ -183,6 +183,9 @@ def citadel(body:dict) -> dict:
             DiscordFramework.AddUserRole(citadelroleid,body['authorid'],discordserverid)
             returnmessage['author'] = "Access granted"
             DiscordFramework.SendDiscordMessage("{0} from {1} has joined the citadel.".format(body['authordisplayname'],result['name']),citadelchannelid)
+            result = __query_cosmos_for_info_by_discordid(str(body['authorid']))
+            result['citadel'] = True
+            CosmosFramework.ReplaceItem(result['_self'],result)
         else:
             returnmessage['author'] = 'Citadel access has been revoked because: {0}. If you believe access should be granted, please see moderator.'.format(result['excludereason'])
     else:

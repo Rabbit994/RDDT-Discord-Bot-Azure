@@ -22,9 +22,23 @@ def run_citadel_check():
             secondary.clear()
         return primary
 
+    def __exclude_clan_from_citadel(clanid):
+        citadelroleid = 636372736322699264
+        discordserverid = CommonFramework.RetrieveConfigOptions('discord')
+        discordserverid = discordserverid['serverid']
+        results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.clan = {0} AND c.citadel = true'.format(clanid))
+        for result in results:
+            status_code = DiscordFramework.RemoveUserRole(citadelroleid,result['discordid'],discordserverid)
+            if status_code == 200:
+                del result['citadel']
+                CosmosFramework.ReplaceItem(result['_self'],result)
+            else:
+                DiscordFramework.send_discord_private_message("Citadel checker is having issues",113304266269003776)
+                raise "Clan removal failed"
+
     citadelchannelid = 491800495980150789 #Bot Testing Channel
     #citadelchannelid = 636374196355858452 Actual citadel channel
-    citadelroleid = 636372736322699264
+    
     wgapi = CommonFramework.RetrieveConfigOptions('wargaming')
     results = __get_citadel_results()
     apiresults = CommonFramework.get_json_data("https://api.worldoftanks.com/wot/clanratings/top/?application_id={0}&rank_field=gm_elo_rating&limit=200".format(wgapi['apitoken']))
@@ -47,24 +61,27 @@ def run_citadel_check():
     clanlist = list(results.keys())
     removeclans = list(set(clanlist) - set(wgidlist)) #List of clans that are removed
     for removeclan in removeclans:
-        claninfo = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wgid={0}'.format(removeclan),'citadel')
+        claninfo = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wgid={0} AND c.citadel = false'.format(removeclan),'citadel')
         claninfo = claninfo[0]
         if 'override' in claninfo and claninfo['override'] is True:
             continue #Overrides are not removed
         elif 'excludetime' not in claninfo:
             claninfo['excludetime'] = int(time.time()) + 604800
-            message = "WARNING: Clan {0} ({1}) will be removed within 7 days due to lack of ELO rating.".format(claninfo['name'],claninfo['tag'])
+            message = "WARNING: Clan {0} ({1}) will be removed within 7 days due to lack of clan rating.".format(claninfo['name'],claninfo['tag'])
             DiscordFramework.SendDiscordMessage(message,citadelchannelid)
             CosmosFramework.ReplaceItem(claninfo['_self'],claninfo)
         elif claninfo['excludetime'] < int(time.time()):
+            __exclude_clan_from_citadel(removeclan)
+            message = "Clan {0} ({1}) has been removed from citadel."
             claninfo['citadel'] = False
-            claninfo['excludereason'] = "Excluded executed"
-
+            claninfo['excludetime'] = None
+            claninfo['excludereason'] = 'Excluded due to lack of ELO'
+            CosmosFramework.ReplaceItem(claninfo['_self'],claninfo)
 
 try:
     run_citadel_check()
     print("Run Complete")
     time.sleep((60*60) * 6)
 except:
-    #raise Exception
+    raise Exception
     time.sleep((60*60) * 6)
