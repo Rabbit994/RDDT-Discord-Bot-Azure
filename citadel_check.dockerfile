@@ -14,8 +14,8 @@ WORKDIR /app
 COPY Modules/ Modules/
 COPY parameters/parameters.json parameters/
 COPY requirements.txt .
-COPY cone_remover.py .
+COPY citadel_check.py .
 
 # Using pip:
 RUN python3 -m pip install -r requirements.txt
-CMD ["python3", "./cone_remover.py"]
+CMD ["python3", "./citadel_check.py"]
