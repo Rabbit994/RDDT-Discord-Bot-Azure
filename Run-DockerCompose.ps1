@@ -8,10 +8,10 @@ param (
 )
 switch($Action){
     "build" {
-        Start-Process 'docker-compose' -ArgumentList 'build --no-cache --parallel' -NoNewWindow -Wait
+        Start-Process 'docker-compose' -ArgumentList 'build --no-cache' -NoNewWindow -Wait
     }
     "up" {
-        Start-Process 'docker-compose' -ArgumentList 'up --detach --build' -NoNewWindow -Wait
+        Start-Process 'docker-compose' -ArgumentList 'up -d --build' -NoNewWindow -Wait
     }
     "down" {
         Start-Process 'docker-compose' -ArgumentList 'down' -NoNewWindow -Wait
