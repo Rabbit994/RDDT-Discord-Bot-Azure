@@ -36,9 +36,8 @@ def run_citadel_check():
                 DiscordFramework.send_discord_private_message("Citadel checker is having issues",113304266269003776)
                 raise "Clan removal failed"
 
-    citadelchannelid = 491800495980150789 #Bot Testing Channel
-    #citadelchannelid = 636374196355858452 Actual citadel channel
-    
+    #citadelchannelid = 491800495980150789 #Bot Testing Channel
+    citadelchannelid = 636374196355858452 #Actual citadel channel
     wgapi = CommonFramework.RetrieveConfigOptions('wargaming')
     results = __get_citadel_results()
     apiresults = CommonFramework.get_json_data("https://api.worldoftanks.com/wot/clanratings/top/?application_id={0}&rank_field=gm_elo_rating&limit=200".format(wgapi['apitoken']))
