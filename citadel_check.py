@@ -35,13 +35,26 @@ def run_citadel_check():
             else:
                 DiscordFramework.send_discord_private_message("Citadel checker is having issues",113304266269003776)
                 raise "Clan removal failed"
-
-    #citadelchannelid = 491800495980150789 #Bot Testing Channel
+    
+    def __exclude_wgid_from_citadel(wgid:int) -> None:
+        """Removes WGID from citadel"""
+        citadelroleid = 636372439261249566
+        discordserverid = CommonFramework.RetrieveConfigOptions('discord')
+        discordserverid = discordserverid['serverid']
+        result = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.discordid="{0}"'.format(wgid),'users')
+        if bool(result):
+            result = result[0]
+            DiscordFramework.RemoveUserRole(citadelroleid,result['discordid'],discordserverid)
+            DiscordFramework.send_discord_private_message('You have been removed from RDDT citadel due clan/rank changes',result['discordid'])
+            del result['citadel']
+            CosmosFramework.ReplaceItem(result['_self'],result)
+      
     citadelchannelid = 636374196355858452 #Actual citadel channel
     wgapi = CommonFramework.RetrieveConfigOptions('wargaming')
     results = __get_citadel_results()
     apiresults = CommonFramework.get_json_data("https://api.worldoftanks.com/wot/clanratings/top/?application_id={0}&rank_field=gm_elo_rating&limit=200".format(wgapi['apitoken']))
     wgidlist = []
+    #Do clan checks ##TODO put this in it's own def block
     for apiresult in apiresults['data']: #Get information about clans from Wargaming API
         wgidlist.append(apiresult['clan_id'])
         if apiresult['clan_id'] not in results:
@@ -78,6 +91,17 @@ def run_citadel_check():
             claninfo['excludetime'] = None
             claninfo['excludereason'] = 'Excluded due to lack of ranking'
             CosmosFramework.ReplaceItem(claninfo['_self'],claninfo)
+    #Do user checks ##TODO Put this in it's own def block
+    userresults = CosmosFramework.QueryItems('SELECT c.wgid FROM c WHERE c.citadel = true','users')
+    wgidtocheck = []
+    for userresult in userresults:
+        wgidtocheck.append(userresult['wgid'])
+        if len(wgidtocheck) >= 99:
+            apiresults = wotframework.GetPlayersClanInfo(wgidtocheck)
+            for apiresult in apiresults:
+                if apiresult[1] is None or apiresult[2] not in ['commander','executive_officer','combat_officer','personnel_officer']:
+                    __exclude_wgid_from_citadel(apiresult[0])
+            wgidtocheck.clear()
 
 try:
     run_citadel_check()
