@@ -13,10 +13,13 @@ def RetrieveConfigOptions(key:str) -> dict:
 
 def get_json_data(uri: str) -> dict:
     """Returns JSON Data in dict format"""
-    response = urllib.request.urlopen(uri)
-    urldata = response.read().decode("utf-8","ignore")
-    jsondata = json.loads(urldata)
-    return jsondata
+    try:
+        response = urllib.request.urlopen(uri,timeout=60)
+        urldata = response.read().decode("utf-8","ignore")
+        jsondata = json.loads(urldata)
+        return jsondata
+    except:
+        return None
 
 def convert_date_time_epoch(datetime:str) -> int:
     """Convert Datetime into epoch"""
