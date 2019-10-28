@@ -103,9 +103,11 @@ def run_citadel_check():
                     __exclude_wgid_from_citadel(apiresult[0])
             wgidtocheck.clear()
 
-try:
-    run_citadel_check()
-    print("Run Complete")
-    time.sleep((60*60) * 6)
-except:
-    time.sleep((60*60) * 6)
+while True:
+    try:
+        run_citadel_check()
+        print("Run Complete")
+        time.sleep((60*60) * 6)
+    except:
+        time.sleep((60*60) * 6)
+        raise Exception
