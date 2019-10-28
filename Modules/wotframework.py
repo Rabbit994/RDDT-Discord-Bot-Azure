@@ -31,6 +31,6 @@ def PlayerDataInfo(wgid:List[int]) -> dict:
         for wid in wgid:
             wgidcsv += "{0},".format(wid)
         wgidcsv = wgidcsv[:-1]
-        uri = 'https://api.worldoftanks.com/wot/account/info/?application_id={0}&account_id={1}'.format(apikey,wgidcsv)
+        uri = 'https://api.worldoftanks.com/wot/account/info/?application_id={0}&account_id={1}&extra=statistics.random'.format(apikey,wgidcsv)
         playerdata = CommonFramework.get_json_data(uri)
         return playerdata
