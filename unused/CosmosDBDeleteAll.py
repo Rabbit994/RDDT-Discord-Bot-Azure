@@ -2,7 +2,7 @@ import Modules.CommonFramework as CommonFramework
 import Modules.CosmosFramework as CosmosFramework
 import time
 
-results = CosmosFramework.QueryItems("SELECT * FROM c",'roles')
+results = CosmosFramework.QueryItems("SELECT * FROM c",'users')
 i = 0
 for result in results:
     i += 1

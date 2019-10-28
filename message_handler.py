@@ -18,23 +18,6 @@ queue = config['queue']
 sbclient = QueueClient.from_connection_string(connection_str,queue)
 #endregion
 
-#region Unused (?)
-def create_channel_message_json(target:str,message:str=None,embed:dict=None) -> str:
-    returnmessage = {}
-    returnmessage['privatemessage'] = False
-    returnmessage['targetid'] = str(target)
-    if message is not None:
-        returnmessage['content'] = message
-    else:
-        returnmessage['content'] = None
-    if embed is not None:
-        returnmessage['embed'] = embed
-    else:
-        returnmessage['embed'] = None
-    returnmessagejson = json.dumps(returnmessage)
-    return returnmessagejson
-#endregion
-
 def __return_message(body:dict, returnmessage:dict) -> None:
     """Gets original message and return message and sends to proper channels"""
     if 'channel' in returnmessage:
@@ -52,40 +35,50 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
             for sbmessage in messages:
                 body = str(sbmessage.message)
                 body = json.loads(body)
-                discordmessage = body['message'].split()
-                #print(body)
-                if discordmessage[0] == '!register' and (body['guildchannelid'] == 507725600073449482 or body['privatemessage'] == True):
-                    returnmessage = DiscordBotFramework.register(body)
-                    if 'privatemessage' in body:
-                        del returnmessage['channel']
-                    __return_message(body,returnmessage)
-                
-                elif discordmessage[0] == '!cw':
-                    if body['guildchannelid'] == 508848701058318366: #RDDT
-                        data = CommonFramework.GetClanBattles(1000001505)
-                        webhooks = CommonFramework.RetrieveConfigOptions('webhooks')
-                        requests.post(webhooks['rddt'], data=data)
-                    elif body['guildchannelid'] == 508849107855474688: #TL-DR
-                        data = CommonFramework.GetClanBattles(1000003392)
-                        webhooks = CommonFramework.RetrieveConfigOptions('webhooks')
-                        requests.post(webhooks['tl-dr'], data=data)
-                
-                elif discordmessage[0] == '!update':
-                    if body['guildchannelid'] == 506659095521132554:
-                        returnmessage = DiscordBotFramework.update(body)
+                if body['type'] == 'message':
+                    discordmessage = body['message'].split()
+                    #print(body)
+                    if discordmessage[0] == '!register' and (body['guildchannelid'] == 507725600073449482 or body['privatemessage'] == True):
+                        returnmessage = DiscordBotFramework.register(body)
+                        if 'privatemessage' in body:
+                            del returnmessage['channel']
                         __return_message(body,returnmessage)
-                
-                elif discordmessage[0] == '!status':
-                    returnmessage = DiscordBotFramework.status(body)
-                    __return_message(body,returnmessage)
-                elif discordmessage[0] == '!cone':
-                    if body['kick_members'] is True:
-                        returnmessage = DiscordBotFramework.cone(body)
-                        __return_message(body,returnmessage)
-                elif discordmessage[0] == '!ping':
-                    returnmessage = {'channel':'pong!'}
-                    __return_message(body,returnmessage)
                     
+                    elif discordmessage[0] == '!cw':
+                        if body['guildchannelid'] == 508848701058318366: #RDDT
+                            data = CommonFramework.GetClanBattles(1000001505)
+                            webhooks = CommonFramework.RetrieveConfigOptions('webhooks')
+                            requests.post(webhooks['rddt'], data=data)
+                        elif body['guildchannelid'] == 508849107855474688: #TL-DR
+                            data = CommonFramework.GetClanBattles(1000003392)
+                            webhooks = CommonFramework.RetrieveConfigOptions('webhooks')
+                            requests.post(webhooks['tl-dr'], data=data)
+
+                    elif discordmessage[0] == '!update':
+                        if body['guildchannelid'] == 506659095521132554:
+                            returnmessage = DiscordBotFramework.update(body)
+                            __return_message(body,returnmessage)
+
+                    elif discordmessage[0] == '!status':
+                        returnmessage = DiscordBotFramework.status(body)
+                        __return_message(body,returnmessage)
+
+                    elif discordmessage[0] == '!cone':
+                        if body['kick_members'] is True:
+                            returnmessage = DiscordBotFramework.cone(body)
+                            __return_message(body,returnmessage)
+
+                    elif discordmessage[0] == '!ping':
+                        returnmessage = {'channel':'pong!'}
+                        __return_message(body,returnmessage)
+                        
+                    elif discordmessage[0] == '!citadel':
+                        returnmessage = DiscordBotFramework.citadel(body)
+                        __return_message(body,returnmessage)
+                elif body['type'] == 'reactionadd':
+                    pass #Future actions
+                elif body['type'] == 'reactionremove':
+                    pass #Future actions
                 sbmessage.complete()
         except:
             pass

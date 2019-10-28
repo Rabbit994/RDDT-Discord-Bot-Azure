@@ -46,8 +46,41 @@ async def on_message(message):
             discordmessage['privatemessage'] = True
             discordmessage['privatemessagechannelid'] = message.channel.id
         discordmessage['message'] = message.content
+        discordmessage['type'] = 'message'
         jsonmessage = json.dumps(discordmessage)
         eventdata = (Message(jsonmessage))
         servicebusclient.send(eventdata)
+
+@discordclient.event
+async def on_raw_reaction_add(payload):
+    if payload.user_id == 488839084245254167:
+        return None #Bot doesn't care about reactions it issues
+    
+    discordmessage = {}
+    discordmessage['type'] = 'reactionadd'
+    discordmessage['channel_id'] = payload.channel_id
+    discordmessage['guild_id'] = payload.guild_id
+    discordmessage['message_id'] = payload.message_id
+    discordmessage['emojiid'] = payload.emoji.id
+    discordmessage['emojiname'] = payload.emoji.name
+    jsonmessage = json.dumps(discordmessage)
+    eventdata = (Message(jsonmessage))
+    servicebusclient.send(eventdata)
+
+@discordclient.event
+async def on_raw_reaction_remove(payload):
+    if payload.user_id == 488839084245254167:
+        return None #Bot doesn't care about reactions it issues
+
+    discordmessage = {}
+    discordmessage['type'] = 'reactionremove'
+    discordmessage['channel_id'] = payload.channel_id
+    discordmessage['guild_id'] = payload.guild_id
+    discordmessage['message_id'] = payload.message_id
+    discordmessage['emojiid'] = payload.emoji.id
+    discordmessage['emojiname'] = payload.emoji.name
+    jsonmessage = json.dumps(discordmessage)
+    eventdata = (Message(jsonmessage))
+    servicebusclient.send(eventdata) 
 
 discordclient.run(token)

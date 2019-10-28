@@ -8,6 +8,7 @@ import time
 import Modules.CommonFramework as CommonFramework
 import Modules.CosmosFramework as CosmosFramework
 import Modules.DiscordFramework as DiscordFramework
+import Modules.wotframework as wotframework
 
 #Public def
 def register(message: dict) -> dict:
@@ -47,7 +48,7 @@ def update(message):
     discordmessage = message['message'].split()
     try:
         discordid = int(discordmessage[1])
-        results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.discordid="{0}"'.format(discordid))
+        results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.discordid="{0}"'.format(discordid),'users')
         if not bool(results): #unknown Discord id
             returnmessage['channel'] = "Unknown Discord ID"
             return returnmessage
@@ -69,7 +70,7 @@ def status(message):
         result = __query_cosmos_for_info_by_discordid(str(discordid))
         if result is None:
             returnmessage['author'] = "User has not registered with the bot"
-        elif result['wgtoken'] != '0000000':
+        elif result['wgtoken'] != '00000000':
             returnmessage['author'] = "User has requested registration but not completed registration"
         elif result['wgid'] is not None and result['rank'] is None:
             returnmessage['author'] = "User has registered properly but awaiting Wargaming API update"
@@ -79,8 +80,7 @@ def status(message):
     except:
         returnmessage['author'] = "An error has occurred"
         return returnmessage
-        
-        
+             
 def checkroles(discordid:str) -> None:
     """Checks user for proper roles"""
     def get_responsible_roles() -> list:
@@ -121,7 +121,6 @@ def checkroles(discordid:str) -> None:
     if bool(commonroles): #Meaning there is roles showing up that shouldn't be there
         for role in commonroles:
             DiscordFramework.RemoveUserRole(role,discordid,config['serverid'])
-
     return None
 
 def cone(body:dict) -> dict:
@@ -157,6 +156,40 @@ def cone(body:dict) -> dict:
     except Exception as e:
         returnmessage['author'] = 'Following error has occured: {0}'.format(e)
         
+def citadel(body:dict) -> dict:
+    returnmessage = {}
+    citadelroleid = 636372439261249566
+    citadelchannelid = 636374196355858452
+    result = __query_cosmos_for_info_by_discordid(str(body['authorid']))
+    discordserverid = CommonFramework.RetrieveConfigOptions('discord')
+    discordserverid = discordserverid['serverid']
+    if result is None or 'wgid' not in result:
+        returnmessage['author'] = "You have not registered with the bot, this is mandatory. Please visit <#507725600073449482> to register or please complete registration."
+        return returnmessage
+    wgid = [int(result['wgid'])]
+    claninfo = wotframework.GetPlayersClanInfo(wgid)
+    claninfo = claninfo[0]
+    if claninfo[1] is None:
+        returnmessage['author'] = "You are not a member of clan, citadel access is denied" 
+        return returnmessage
+    elif claninfo[2] not in ['commander','executive_officer','combat_officer','personnel_officer']:
+        returnmessage['author'] = "Citadel access is restricted to Clan officers only"
+        return returnmessage
+    results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wgid = {0}'.format(claninfo[1]),'citadel')
+    if bool(results): #Meaning their clan ID is in citadel container
+        result = results[0]
+        if result['citadel'] is True:
+            DiscordFramework.AddUserRole(citadelroleid,body['authorid'],discordserverid)
+            returnmessage['author'] = "Access granted"
+            DiscordFramework.SendDiscordMessage("{0} from {1} has joined the citadel.".format(body['authordisplayname'],result['name']),citadelchannelid)
+            result = __query_cosmos_for_info_by_discordid(str(body['authorid']))
+            result['citadel'] = True
+            CosmosFramework.ReplaceItem(result['_self'],result)
+        else:
+            returnmessage['author'] = 'Citadel access has been revoked because: {0}. If you believe access should be granted, please see moderator.'.format(result['excludereason'])
+    else:
+        returnmessage['author'] = 'Citadel access is restricted to clans who rank on Global Map ELO. If you believe access should be granted, please see moderator.'
+    return returnmessage
 
 #Private def
 

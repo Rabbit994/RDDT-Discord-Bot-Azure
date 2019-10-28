@@ -16,3 +16,21 @@ def GetPlayersClanInfo(wgids : List[int]) -> List[Tuple[int, int, str]]:
 
     return list(map(getInfo, playerData['data'].items()))
 
+def GetClanInfo(wgclanid:int) -> dict:
+    apikey = CommonFramework.RetrieveConfigOptions("wargaming")
+    apikey = apikey['apitoken']
+    uri = ""
+
+def PlayerDataInfo(wgid:List[int]) -> dict:
+    apikey = CommonFramework.RetrieveConfigOptions("wargaming")
+    apikey = apikey['apitoken']
+    if len(wgid) > 100:
+        return None
+    else:
+        wgidcsv = ""
+        for wid in wgid:
+            wgidcsv += "{0},".format(wid)
+        wgidcsv = wgidcsv[:-1]
+        uri = 'https://api.worldoftanks.com/wot/account/info/?application_id={0}&account_id={1}'.format(apikey,wgidcsv)
+        playerdata = CommonFramework.get_json_data(uri)
+        return playerdata
