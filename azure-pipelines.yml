@@ -26,14 +26,5 @@ steps:
     azureSubscription: 'Microsoft Partner Network(5da5c7b5-0878-4c8b-8f5d-c870cc3eec80)'
     azureContainerRegistry: '{"loginServer":"rddtdiscordbot.azurecr.io", "id" : "/subscriptions/5da5c7b5-0878-4c8b-8f5d-c870cc3eec80/resourceGroups/Discord-RDDT-Bot-RG/providers/Microsoft.ContainerRegistry/registries/rddtdiscordbot"}'
     dockerComposeFile: '**/docker-compose.yml'
-    action: 'Run a Docker Compose Build command'
+    action: 'Run a Docker Compose command'
     dockerComposeCommand: 'build'
-- task: DockerCompose@0
-  inputs:
-    containerregistrytype: 'Azure Container Registry'
-    azureSubscription: 'Microsoft Partner Network(5da5c7b5-0878-4c8b-8f5d-c870cc3eec80)'
-    azureContainerRegistry: '{"loginServer":"rddtdiscordbot.azurecr.io", "id" : "/subscriptions/5da5c7b5-0878-4c8b-8f5d-c870cc3eec80/resourceGroups/Discord-RDDT-Bot-RG/providers/Microsoft.ContainerRegistry/registries/rddtdiscordbot"}'
-    dockerComposeFile: '**/docker-compose.yml'
-    action: Run a Docker Compose Push Command'
-    dockerComposeCommand: 'push'
-
