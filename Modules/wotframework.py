@@ -21,7 +21,7 @@ def GetClanInfo(wgclanid:int) -> dict:
     apikey = apikey['apitoken']
     uri = ""
 
-def PlayerDataInfo(wgid:List[int]) -> dict:
+def player_data_info(wgid:List[int]) -> dict:
     apikey = CommonFramework.RetrieveConfigOptions("wargaming")
     apikey = apikey['apitoken']
     if len(wgid) > 100:
