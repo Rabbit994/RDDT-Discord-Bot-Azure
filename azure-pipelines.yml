@@ -28,7 +28,7 @@ steps:
     dockerComposeFile: '**/docker-compose.yml'
     action: 'Run a Docker Compose Build command'
     dockerComposeCommand: 'build'
-- task: DockerCompose@1
+- task: DockerCompose@3
   inputs:
     containerregistrytype: 'Azure Container Registry'
     azureSubscription: 'Microsoft Partner Network(5da5c7b5-0878-4c8b-8f5d-c870cc3eec80)'
