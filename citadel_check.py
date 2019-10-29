@@ -26,7 +26,7 @@ def run_citadel_check():
         citadelroleid = 636372439261249566
         discordserverid = CommonFramework.RetrieveConfigOptions('discord')
         discordserverid = discordserverid['serverid']
-        results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.clan = {0} AND c.citadel = true'.format(clanid))
+        results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.clan = {0} AND c.citadel = true'.format(clanid),'users')
         for result in results:
             status_code = DiscordFramework.RemoveUserRole(citadelroleid,result['discordid'],discordserverid)
             if status_code == 204:
@@ -103,9 +103,11 @@ def run_citadel_check():
                     __exclude_wgid_from_citadel(apiresult[0])
             wgidtocheck.clear()
 
-try:
-    run_citadel_check()
-    print("Run Complete")
-    time.sleep((60*60) * 6)
-except:
-    time.sleep((60*60) * 6)
+while True:
+    try:
+        run_citadel_check()
+        print("Run Complete")
+        time.sleep((60*60) * 6)
+    except:
+        time.sleep((60*60) * 6)
+        raise Exception

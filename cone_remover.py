@@ -20,9 +20,10 @@ def CheckCones() -> None:
                 del result['cone']
                 CosmosFramework.ReplaceItem(result['_self'],result)
 
-try:
-    CheckCones()
-    sleep(120) #Sleep for 2 minutes and then exit
-except:
-    sleep(120) #Sleep for 2 minutes and then exit
-    pass
+while True:
+    try:
+        CheckCones()
+        sleep(120) #Sleep for 2 minutes and then exit
+    except:
+        sleep(120) #Sleep for 2 minutes and then exit
+        quit() #Quit in case there is temp problem, docker will restart
