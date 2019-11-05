@@ -51,4 +51,11 @@ def ReplaceItem(documentlink:str,newdocument:dict) -> list:
         except:
                 raise Exception
         return resultreturn
- 
+
+def query_cosmos_for_user_by_wgid(wgid:int) -> None:
+        '''Gets user CosmosDB entry by wgid'''
+        results = QueryItems('SELECT * FROM c WHERE c.wgid = {0}','users')
+        if not bool(results):
+                return None
+        else:
+                return results[0]
