@@ -19,14 +19,19 @@ def UpdateStats() -> None:
             wgapiresults = wgapiresults['data']
             for wgapiresult in wgapiresults.items():
                 wgapiresult = wgapiresult[1]
-                userdbdata = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wgid = {0}'.format(wgapiresult['account_id']))
-                userdbdata = userdbdata[0]
+                userdbdata = CosmosFramework.query_cosmos_for_user_by_wgid(wgapiresult['account_id'])
                 if 'contest' in userdbdata: #Meaning I've seen user before
-                    pass #TODO Add update
-                elif 'contest' not in userdbdata:
                     stat = wgapiresult['statistics']['random'][stattocheck]
-                    #TODO Figure out to handle stats
-                print(wgapiresult)
+                    userdbdata['contest']['points'].append(stat)
+                    userdbdata['contest']['currentscore'] = int(stat) - int(userdbdata['contest']['points'][0])
+                    #CosmosFramework.ReplaceItem(userdbdata['_self'],userdbdata) ##TODO Verify that this works
+                elif 'contest' not in userdbdata:
+                    stat = [wgapiresult['statistics']['random'][stattocheck]]
+                    points = {'points':stat}
+                    points['currentscore'] = 0
+                    userdbdata['contest'] = dict(points)
+                    CosmosFramework.ReplaceItem(userdbdata['_self'],userdbdata)
+            wgidlist.clear()
 
 
 while True:
