@@ -1,4 +1,3 @@
-import time
 #local modules
 import Modules.CosmosFramework as CosmosFramework
 import Modules.DiscordBotFramework as DiscordBotFramework
@@ -6,8 +5,7 @@ import Modules.DiscordFramework as DiscordFramework
 import Modules.wotframework as wotframework
 
 def UpdateStats() -> None:
-    updatetime = int(time.time())
-    stattocheck = 'explosion_hits_received'
+    stattocheck = 'explosion_hits_received' #TODO
     results = CosmosFramework.QueryItems('SELECT c.wgid FROM c WHERE c.wgid <> null','users')
     wgidlist = []
     for result in results:
@@ -19,11 +17,16 @@ def UpdateStats() -> None:
             wgapiresults = wgapiresults['data']
             for wgapiresult in wgapiresults.items():
                 wgapiresult = wgapiresult[1]
+                if wgapiresult is None:
+                    continue
                 userdbdata = CosmosFramework.query_cosmos_for_user_by_wgid(wgapiresult['account_id'])
+                if userdbdata is None:
+                    continue
                 if 'contest' in userdbdata: #Meaning I've seen user before
                     stat = wgapiresult['statistics']['random'][stattocheck]
                     userdbdata['contest']['points'].append(stat)
-                    userdbdata['contest']['currentscore'] = int(stat) - int(userdbdata['contest']['points'][0])
+                    if (int(stat) - int(userdbdata['contest']['points'][0]) != 0):
+                        userdbdata['contest']['currentscore'] = int(stat) - int(userdbdata['contest']['points'][0])
                     #CosmosFramework.ReplaceItem(userdbdata['_self'],userdbdata) ##TODO Verify that this works
                 elif 'contest' not in userdbdata:
                     stat = [wgapiresult['statistics']['random'][stattocheck]]
