@@ -191,6 +191,18 @@ def citadel(body:dict) -> dict:
         returnmessage['author'] = 'Citadel access is restricted to clans who rank on Global Map ELO. If you believe access should be granted, please see moderator.'
     return returnmessage
 
+def startcontest(body:dict) -> dict:
+    """Starts the contest in database for contest"""
+    returnmessage = {}
+    currenttime = int(time.time())
+    results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.endtime > {0} AND c.starttime > {0} AND c.active = true AND c.start = true'.format(currenttime),'contest')
+    results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.endtime < {0} AND c.active = true'.format(currenttime),'contest')
+    
+    if len(results) > 1:
+        returnmessage['author'] = 'It appears two contests are currently underway at this time, please let rabbit know'
+    
+    pass
+
 #Private def
 
 def __discord_id_from_mention(discordid:str) -> str:

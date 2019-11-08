@@ -75,6 +75,10 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                     elif discordmessage[0] == '!citadel':
                         returnmessage = DiscordBotFramework.citadel(body)
                         __return_message(body,returnmessage)
+
+                    elif discordmessage[0] == '!startcontest':
+                        returnmessage = DiscordBotFramework.startcontest(body)
+                        __return_message(body,returnmessage)
                 elif body['type'] == 'reactionadd':
                     pass #Future actions
                 elif body['type'] == 'reactionremove':
