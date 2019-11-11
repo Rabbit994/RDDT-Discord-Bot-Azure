@@ -194,14 +194,49 @@ def citadel(body:dict) -> dict:
 def startcontest(body:dict) -> dict:
     """Starts the contest in database for contest"""
     returnmessage = {}
+    if str(body['authorid']) not in ['298272014005829642','113304266269003776']:
+        returnmessage['author'] = 'You are not authorized to start a contest'
+        return returnmessage
+    discordmessage = __get_split_message(body['message'])
+    try: #Catching user not sending number
+        if int(discordmessage[1]) > 28:
+            returnmessage['author'] = 'Contests may not be longer then 28 days'
+            return returnmessage
+        endtime = 86400 * int(discordmessage[1])
+    except:
+        returnmessage['author'] = 'You do not specify how long contests can be for'
     currenttime = int(time.time())
-    results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.endtime > {0} AND c.starttime > {0} AND c.active = true AND c.start = true'.format(currenttime),'contest')
-    results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.endtime < {0} AND c.active = true'.format(currenttime),'contest')
-    
+    results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.active = true OR c.start = true','contest')
     if len(results) > 1:
         returnmessage['author'] = 'It appears two contests are currently underway at this time, please let rabbit know'
+        return returnmessage
+    elif len(results) == 1:
+        returnmessage['author'] = 'Contest is currently under way'
+    else:
+        doc = {'starttime':currenttime}
+        doc['endtime'] = endtime
+        doc['active'] = False
+        doc['start'] = True
+        statlist = ['capture_points',
+        'damage_dealt',
+        'damage_received',
+        'direct_hits_received',
+        'dropped_capture_points',
+        'explosion_hits',
+        'explosion_hits_received',
+        'frags',
+        'hits',
+        'piercings',
+        'piercings_received',
+        'shots',
+        'spotted',
+        'stun_assisted_damage',
+        'stun_number',
+        'survived_battles']
+        
+        CosmosFramework.InsertItem(doc,'contest')
     
-    pass
+    
 
 #Private def
 
@@ -220,3 +255,7 @@ def __query_cosmos_for_info_by_discordid(discordid:str) -> dict:
         return None
     else:
         return results[0]
+
+def __get_split_message(message:str) -> list:
+    discordmessage = message.split()
+    return discordmessage
