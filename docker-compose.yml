@@ -38,3 +38,9 @@ services:
         dockerfile: citadel_check.dockerfile
     image: 'rddtdiscordbot.azurecr.io/drbcitadelcheck:latest'
     restart: always
+  drbstatchecker:
+    build:
+        context: .
+        dockerfile: stat_checker.dockerfile
+    image: 'rddtdiscordbot.azurecr.io/drbstatchecker:latest'
+    restart: always
