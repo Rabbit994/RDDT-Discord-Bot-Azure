@@ -4,7 +4,9 @@
 import hashlib
 import datetime
 import time
+import random
 
+#Local Modules
 import Modules.CommonFramework as CommonFramework
 import Modules.CosmosFramework as CosmosFramework
 import Modules.DiscordFramework as DiscordFramework
@@ -194,6 +196,7 @@ def citadel(body:dict) -> dict:
 def startcontest(body:dict) -> dict:
     """Starts the contest in database for contest"""
     returnmessage = {}
+    currenttime = int(time.time())
     if str(body['authorid']) not in ['298272014005829642','113304266269003776']:
         returnmessage['author'] = 'You are not authorized to start a contest'
         return returnmessage
@@ -202,19 +205,20 @@ def startcontest(body:dict) -> dict:
         if int(discordmessage[1]) > 28:
             returnmessage['author'] = 'Contests may not be longer then 28 days'
             return returnmessage
-        endtime = 86400 * int(discordmessage[1])
+        endtime = currenttime + (86400 * int(discordmessage[1]))
     except:
         returnmessage['author'] = 'You do not specify how long contests can be for'
-    currenttime = int(time.time())
+        return returnmessage
     results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.active = true OR c.start = true','contest')
     if len(results) > 1:
-        returnmessage['author'] = 'It appears two contests are currently underway at this time, please let rabbit know'
+        returnmessage['author'] = 'It appears multiple contests are currently underway at this time, please let rabbit know'
         return returnmessage
     elif len(results) == 1:
         returnmessage['author'] = 'Contest is currently under way'
+        return returnmessage
     else:
-        doc = {'starttime':currenttime}
-        doc['endtime'] = endtime
+        doc = {'starttime':int(currenttime)}
+        doc['endtime'] = int(endtime)
         doc['active'] = False
         doc['start'] = True
         statlist = ['capture_points',
@@ -233,10 +237,10 @@ def startcontest(body:dict) -> dict:
         'stun_assisted_damage',
         'stun_number',
         'survived_battles']
-        
+        doc['stat'] = statlist[(random.randint(0,len(statlist)))]
         CosmosFramework.InsertItem(doc,'contest')
-    
-    
+        returnmessage['author'] = 'Contest started for {0} days'.format(discordmessage[1])
+        return returnmessage
 
 #Private def
 
