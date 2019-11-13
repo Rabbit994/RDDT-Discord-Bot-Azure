@@ -1,5 +1,7 @@
 import time
+import random
 #local modules
+import Modules.CommonFramework as CommonFramework
 import Modules.CosmosFramework as CosmosFramework
 import Modules.DiscordBotFramework as DiscordBotFramework
 import Modules.DiscordFramework as DiscordFramework
@@ -7,14 +9,14 @@ import Modules.wotframework as wotframework
 
 def UpdateStats() -> None:
     
-    def __update_list_of_wgid(wgid:list) -> None:
+    def __update_list_of_wgid(wgid:list, stattocheck:str) -> None:
         """Updates a list of WGID, maximum of 100"""
         wgapiresults = wotframework.player_data_info(wgid)
         wgapiresults = wgapiresults['data']
         for wgapiresult in wgapiresults.items():
             wgapiresult = wgapiresult[1]
             if wgapiresult is None:
-                continue #Unknown user, skip
+                continue #Unknown user, skip (Banned, deleted user)
             userdbdata = CosmosFramework.query_cosmos_for_user_by_wgid(wgapiresult['account_id'])
             if userdbdata is None:
                 continue #Not in database, This shouldn't happen
@@ -31,17 +33,32 @@ def UpdateStats() -> None:
                 userdbdata['contest'] = dict(points)
                 CosmosFramework.ReplaceItem(userdbdata['_self'],userdbdata)
 
-    def __start_new_contest() -> None:
-        
-        pass
-    ##TODO handle starting contest
+    def __start_new_contest(channelid:str) -> None:
+        """Starts new contest by removing old contest results"""
+        results = CosmosFramework.QueryItems('SELECT * FROM c WHERE IS_DEFINED(c.contest)')
+        for result in results:
+            del result['contest']
+            CosmosFramework.ReplaceItem(result['_self'],result)
+        results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.start = true','contest')
+        results = results[0]
+        results['start'] = False
+        results['active'] = True
+        CosmosFramework.ReplaceItem(results['_self'],results)
+        days = int((results['endtime'] - results['starttime']) / 86400)
+        DiscordFramework.SendDiscordMessage('A new contest has started! It will run for {0} days.'.format(days),channelid)
+    
+    channelid = 491800495980150789
     currenttime = int(time.time())
-    endtime = currenttime + (86400 * 14) #Number of days
-    results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.starttime > {0} and c.endtime < {1}'.format(currenttime,endtime),'contest')
-    if not bool(results):
-        __start_new_contest()
-
-    stattocheck = 'explosion_hits_received' #TODO Move to Config file or randomizer
+    contestresults = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.active = true OR c.start = true','contest')
+    if not bool(contestresults):
+        return None #No contest is currently running, abort
+    contestresults = contestresults[0]
+    stattocheck = contestresults['stat']
+    if contestresults['start'] == True:
+        __start_new_contest(channelid)
+    elif contestresults['endtime'] < currenttime:
+        pass ##TODO End Contest
+    
     results = CosmosFramework.QueryItems('SELECT c.wgid FROM c WHERE c.wgid <> null','users')
     wgidlist = []
     for result in results:
@@ -49,12 +66,31 @@ def UpdateStats() -> None:
             wgidlist.append(result['wgid'])
         else:
             wgidlist.append(result['wgid'])
-            __update_list_of_wgid(wgidlist)
+            __update_list_of_wgid(wgidlist,stattocheck)
+            time.sleep(3) #WG API rate limiting
             wgidlist.clear()
-    __update_list_of_wgid(wgidlist)
-    
-    ##TODO Handle ending contest
-    ##TODO Update Channel with information
+    __update_list_of_wgid(wgidlist,stattocheck)
+    ##TODO Channel update
+    results = CosmosFramework.QueryItems('SELECT TOP 3 * FROM c WHERE IS_DEFINED(c.contest.currentscore) AND c.contest.currentscore != 0 ORDER BY c.contest.currentscore DESC','contest')
+    if not bool(results): ##No users with score greater then 1
+        return None
+    config = CommonFramework.RetrieveConfigOptions('discord')
+    place = 1
+    DiscordFramework.SendDiscordMessage('Current Contest results:',channelid)
+    for result in results:
+        userdata = DiscordFramework.get_user_guild_info(result['discordid'],config['serverid'])
+        if result['contest']['currentscore'] == 0:
+            place += 1
+            continue
+        if userdata['nick'] is None:
+            nick = userdata['user']['username']
+        else:
+            nick = userdata['nick']
+        score = userdata['contest']['currentscore'] * (random.randint(90,110)/100)
+        discordmessage = "{0} is currently in #{1} place with score: {2}".format(nick,place,score)
+        DiscordFramework.SendDiscordMessage(discordmessage,channelid)
+        place += 1
+
 
 while True:
     try:
