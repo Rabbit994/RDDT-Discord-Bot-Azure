@@ -59,3 +59,9 @@ def query_cosmos_for_user_by_wgid(wgid:int) -> None:
                 return None
         else:
                 return results[0]
+
+def delete_user_from_cosmos_by_discordid(discordid:str) -> None:
+        '''Deletes user from database by Discord ID'''
+        results = QueryItems('SELECT * FROM c WHERE c.discordid = "{0}"'.format(discordid),'users')
+        results = results[0]
+        RemoveItem(results['_self'],results['discordid'])

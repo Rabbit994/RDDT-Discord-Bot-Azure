@@ -71,7 +71,7 @@ def UpdateStats() -> None:
             wgidlist.clear()
     __update_list_of_wgid(wgidlist,stattocheck)
     ##TODO Channel update
-    results = CosmosFramework.QueryItems('SELECT TOP 3 * FROM c WHERE IS_DEFINED(c.contest.currentscore) AND c.contest.currentscore != 0 ORDER BY c.contest.currentscore DESC','contest')
+    results = CosmosFramework.QueryItems('SELECT TOP 3 * FROM c WHERE IS_DEFINED(c.contest.currentscore) AND c.contest.currentscore != 0 ORDER BY c.contest.currentscore DESC','users')
     if not bool(results): ##No users with score greater then 1
         return None
     config = CommonFramework.RetrieveConfigOptions('discord')
@@ -82,11 +82,14 @@ def UpdateStats() -> None:
         if result['contest']['currentscore'] == 0:
             place += 1
             continue
+        if 'code' in userdata and userdata['code'] == 10007:
+            CosmosFramework.delete_user_from_cosmos_by_discordid(result['discordid'])
+            continue
         if userdata['nick'] is None:
             nick = userdata['user']['username']
         else:
             nick = userdata['nick']
-        score = userdata['contest']['currentscore'] * (random.randint(90,110)/100)
+        score = int(result['contest']['currentscore'] * (random.randint(100,110)/100))
         discordmessage = "{0} is currently in #{1} place with score: {2}".format(nick,place,score)
         DiscordFramework.SendDiscordMessage(discordmessage,channelid)
         place += 1
@@ -95,6 +98,7 @@ def UpdateStats() -> None:
 while True:
     try:
         UpdateStats()
+        print("Update finished")
         time.sleep(3600*4)
     except:
         raise Exception
