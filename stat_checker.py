@@ -8,7 +8,8 @@ import Modules.DiscordFramework as DiscordFramework
 import Modules.wotframework as wotframework
 
 def UpdateStats() -> None:
-    
+    channelid = 491800495980150789
+
     def __update_list_of_wgid(wgid:list, stattocheck:str) -> None:
         """Updates a list of WGID, maximum of 100"""
         wgapiresults = wotframework.player_data_info(wgid)
@@ -47,18 +48,61 @@ def UpdateStats() -> None:
         days = int((results['endtime'] - results['starttime']) / 86400)
         DiscordFramework.SendDiscordMessage('A new contest has started! It will run for {0} days.'.format(days),channelid)
     
-    channelid = 491800495980150789
+    def __post_contest_results(channelid:str,random:bool=True) -> None:
+        """Posts Contest results, Needs Channel ID and if results should be randomized"""
+        results = CosmosFramework.QueryItems('SELECT TOP 3 * FROM c WHERE IS_DEFINED(c.contest.currentscore) AND c.contest.currentscore != 0 ORDER BY c.contest.currentscore DESC','users')
+        if not bool(results): ##No users with score greater then 1
+            return None
+        config = CommonFramework.RetrieveConfigOptions('discord')
+        place = 1
+        DiscordFramework.SendDiscordMessage('Current Contest results:', channelid)
+        for result in results:
+            userdata = DiscordFramework.get_user_guild_info(result['discordid'],config['serverid'])
+            if result['contest']['currentscore'] == 0:
+                place += 1
+                continue
+            if 'code' in userdata and userdata['code'] == 10007:
+                CosmosFramework.delete_user_from_cosmos_by_discordid(result['discordid'])
+                continue
+            if userdata['nick'] is None:
+                nick = userdata['user']['username']
+            else:
+                nick = userdata['nick']
+            if random is True:
+                score = int(result['contest']['currentscore'] * (random.randint(100,110)/100))
+            else:
+                score = int(result['contest']['currentscore'])
+            discordmessage = "{0} is currently in #{1} place with score: {2}".format(nick,place,score)
+            DiscordFramework.SendDiscordMessage(discordmessage,channelid)
+            place += 1
+
+    def __end_current_contest(channelid:str) -> None:
+        message = 'Contest is over, congratulations to the winners. Rewards will be issued shortly.'
+        DiscordFramework.SendDiscordMessage(message=message,channelid=channelid)
+        contestresults = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.active = true','contest')
+        winnerresults = CosmosFramework.QueryItems('SELECT TOP 3 * FROM c WHERE IS_DEFINED(c.contest.currentscore) AND c.contest.currentscore != 0 ORDER BY c.contest.currentscore DESC','users')
+        contestresults = contestresults[0]
+        placedict = {}
+        place = 1
+        for result in winnerresults:
+            placedict[str(place)] = {result['wgid']: result['contest']['currentscore']}
+            place += 1
+        contestresults['winners'] = dict(place)
+        contestresults['active'] = False
+        CosmosFramework.ReplaceItem(contestresults['_self'],contestresults)
+
+    
     currenttime = int(time.time())
     contestresults = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.active = true OR c.start = true','contest')
     if not bool(contestresults):
         return None #No contest is currently running, abort
     contestresults = contestresults[0]
     stattocheck = contestresults['stat']
+    #Start New Contest
     if contestresults['start'] == True:
         __start_new_contest(channelid)
-    elif contestresults['endtime'] < currenttime:
-        pass ##TODO End Contest
     
+    #Update all WGID
     results = CosmosFramework.QueryItems('SELECT c.wgid FROM c WHERE c.wgid <> null','users')
     wgidlist = []
     for result in results:
@@ -70,29 +114,14 @@ def UpdateStats() -> None:
             time.sleep(3) #WG API rate limiting
             wgidlist.clear()
     __update_list_of_wgid(wgidlist,stattocheck)
-    ##TODO Channel update
-    results = CosmosFramework.QueryItems('SELECT TOP 3 * FROM c WHERE IS_DEFINED(c.contest.currentscore) AND c.contest.currentscore != 0 ORDER BY c.contest.currentscore DESC','users')
-    if not bool(results): ##No users with score greater then 1
-        return None
-    config = CommonFramework.RetrieveConfigOptions('discord')
-    place = 1
-    DiscordFramework.SendDiscordMessage('Current Contest results:',channelid)
-    for result in results:
-        userdata = DiscordFramework.get_user_guild_info(result['discordid'],config['serverid'])
-        if result['contest']['currentscore'] == 0:
-            place += 1
-            continue
-        if 'code' in userdata and userdata['code'] == 10007:
-            CosmosFramework.delete_user_from_cosmos_by_discordid(result['discordid'])
-            continue
-        if userdata['nick'] is None:
-            nick = userdata['user']['username']
-        else:
-            nick = userdata['nick']
-        score = int(result['contest']['currentscore'] * (random.randint(100,110)/100))
-        discordmessage = "{0} is currently in #{1} place with score: {2}".format(nick,place,score)
-        DiscordFramework.SendDiscordMessage(discordmessage,channelid)
-        place += 1
+
+    #Post Contest Results
+    
+    if contestresults['endtime'] < currenttime:
+        __post_contest_results(channelid=channelid,random=False)
+        __end_current_contest
+    else:
+        __post_contest_results(channelid=channelid,random=True)
 
 
 while True:
