@@ -80,7 +80,7 @@ def UpdateStats() -> None:
         contestresults = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.active = true','contest')
         winnerresults = CosmosFramework.QueryItems('SELECT TOP 3 * FROM c WHERE IS_DEFINED(c.contest.currentscore) AND c.contest.currentscore != 0 ORDER BY c.contest.currentscore DESC','users')
         contestresults = contestresults[0]
-        message = 'Contest is over, congratulations to the winners. Stat being tracked this contests was: {0}. Rewards will be issued shortly.'.format(contestresults['stat'])
+        message = 'Contest is over, congratulations to the winners. Stat being tracked this contest was: {0}. Rewards will be issued shortly.'.format(contestresults['stat'])
         DiscordFramework.SendDiscordMessage(message=message,channelid=channelid)
         placedict = {}
         place = 1
