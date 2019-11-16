@@ -77,17 +77,17 @@ def UpdateStats() -> None:
             place += 1
 
     def __end_current_contest(channelid:str) -> None:
-        message = 'Contest is over, congratulations to the winners. Rewards will be issued shortly.'
-        DiscordFramework.SendDiscordMessage(message=message,channelid=channelid)
         contestresults = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.active = true','contest')
         winnerresults = CosmosFramework.QueryItems('SELECT TOP 3 * FROM c WHERE IS_DEFINED(c.contest.currentscore) AND c.contest.currentscore != 0 ORDER BY c.contest.currentscore DESC','users')
         contestresults = contestresults[0]
+        message = 'Contest is over, congratulations to the winners. Stat being tracked this contests was: {0}. Rewards will be issued shortly.'.format(contestresults['stat'])
+        DiscordFramework.SendDiscordMessage(message=message,channelid=channelid)
         placedict = {}
         place = 1
         for result in winnerresults:
             placedict[str(place)] = {result['wgid']: result['contest']['currentscore']}
             place += 1
-        contestresults['winners'] = dict(place)
+        contestresults['winners'] = dict(placedict)
         contestresults['active'] = False
         CosmosFramework.ReplaceItem(contestresults['_self'],contestresults)
 
@@ -119,7 +119,7 @@ def UpdateStats() -> None:
     
     if contestresults['endtime'] < currenttime:
         __post_contest_results(channelid=channelid,random=False)
-        __end_current_contest
+        __end_current_contest(channelid=channelid)
     else:
         __post_contest_results(channelid=channelid,random=True)
 
