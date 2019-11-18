@@ -48,7 +48,7 @@ def UpdateStats() -> None:
         days = int((results['endtime'] - results['starttime']) / 86400)
         DiscordFramework.SendDiscordMessage('A new contest has started! It will run for {0} days.'.format(days),channelid)
     
-    def __post_contest_results(channelid:str,random:bool=True) -> None:
+    def __post_contest_results(channelid:str,statrandom:bool=True) -> None:
         """Posts Contest results, Needs Channel ID and if results should be randomized"""
         results = CosmosFramework.QueryItems('SELECT TOP 3 * FROM c WHERE IS_DEFINED(c.contest.currentscore) AND c.contest.currentscore != 0 ORDER BY c.contest.currentscore DESC','users')
         if not bool(results): ##No users with score greater then 1
@@ -68,7 +68,7 @@ def UpdateStats() -> None:
                 nick = userdata['user']['username']
             else:
                 nick = userdata['nick']
-            if random is True:
+            if statrandom is True:
                 score = int(result['contest']['currentscore'] * (random.randint(100,110)/100))
             else:
                 score = int(result['contest']['currentscore'])
@@ -118,10 +118,10 @@ def UpdateStats() -> None:
     #Post Contest Results
     
     if contestresults['endtime'] < currenttime:
-        __post_contest_results(channelid=channelid,random=False)
+        __post_contest_results(channelid=channelid,statrandom=False)
         __end_current_contest(channelid=channelid)
     else:
-        __post_contest_results(channelid=channelid,random=True)
+        __post_contest_results(channelid=channelid,statrandom=True)
 
 
 while True:
