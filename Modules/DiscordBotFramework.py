@@ -237,7 +237,7 @@ def startcontest(body:dict) -> dict:
         'stun_assisted_damage',
         'stun_number',
         'survived_battles']
-        doc['stat'] = statlist[(random.randint(0,len(statlist)))]
+        doc['stat'] = statlist[(random.randint(0,len(statlist) - 1))]
         CosmosFramework.InsertItem(doc,'contest')
         returnmessage['author'] = 'Contest started for {0} days'.format(discordmessage[1])
         return returnmessage
