@@ -78,8 +78,8 @@ def UpdateStats() -> None:
 
     def __end_current_contest(channelid:str) -> None:
         contestresults = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.active = true','contest')
-        winnerresults = CosmosFramework.QueryItems('SELECT TOP 10 * FROM c WHERE IS_DEFINED(c.contest.currentscore) AND c.contest.currentscore != 0 ORDER BY c.contest.currentscore DESC','users')
         contestresults = contestresults[0]
+        winnerresults = CosmosFramework.QueryItems('SELECT TOP 10 * FROM c WHERE IS_DEFINED(c.contest.currentscore) AND c.contest.currentscore != 0 ORDER BY c.contest.currentscore DESC','users')
         message = 'Contest is over, congratulations to the winners. Stat being tracked this contest was: {0}. Rewards will be issued shortly.'.format(contestresults['stat'])
         DiscordFramework.SendDiscordMessage(message=message,channelid=channelid)
         placedict = {}
@@ -91,13 +91,13 @@ def UpdateStats() -> None:
         contestresults['active'] = False
         CosmosFramework.ReplaceItem(contestresults['_self'],contestresults)
 
-    
     currenttime = int(time.time())
     contestresults = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.active = true OR c.start = true','contest')
     if not bool(contestresults):
         return None #No contest is currently running, abort
     contestresults = contestresults[0]
     stattocheck = contestresults['stat']
+    
     #Start New Contest
     if contestresults['start'] == True:
         __start_new_contest(channelid)
@@ -116,13 +116,11 @@ def UpdateStats() -> None:
     __update_list_of_wgid(wgidlist,stattocheck)
 
     #Post Contest Results
-    
     if contestresults['endtime'] < currenttime:
         __post_contest_results(channelid=channelid,statrandom=False)
         __end_current_contest(channelid=channelid)
     else:
         __post_contest_results(channelid=channelid,statrandom=True)
-
 
 while True:
     try:
@@ -131,7 +129,3 @@ while True:
         time.sleep(3600*4)
     except:
         raise Exception
-
-        
-    
-
