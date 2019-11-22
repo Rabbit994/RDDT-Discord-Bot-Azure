@@ -8,7 +8,7 @@ import Modules.DiscordFramework as DiscordFramework
 import Modules.wotframework as wotframework
 
 def UpdateStats() -> None:
-    channelid = 491800495980150789
+    channelid = 414606940660957184
 
     def __update_list_of_wgid(wgid:list, stattocheck:str) -> None:
         """Updates a list of WGID, maximum of 100"""
