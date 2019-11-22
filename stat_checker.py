@@ -46,8 +46,12 @@ def UpdateStats() -> None:
         results['active'] = True
         CosmosFramework.ReplaceItem(results['_self'],results)
         days = int((results['endtime'] - results['starttime']) / 86400)
-        DiscordFramework.SendDiscordMessage('A new contest has started! It will run for {0} days.'.format(days),channelid)
-    
+        startmessage = 'Reddit World of Tanks contest has started! It will run for {0} days.'.format(days)
+        startmessage += '\nContest is measurement of World of Tanks single stat in random battles from now until end of contest.'
+        startmessage += '\nStat is chosen randomly and not available to any staff member.'
+        startmessage += '\nContest is open to anyone with who has register with bot or registers with bot while contest is running. RDDT clan membership is not required.'
+        DiscordFramework.SendDiscordMessage(message=startmessage,channelid=channelid)
+
     def __post_contest_results(channelid:str,statrandom:bool=True) -> None:
         """Posts Contest results, Needs Channel ID and if results should be randomized"""
         results = CosmosFramework.QueryItems('SELECT TOP 3 * FROM c WHERE IS_DEFINED(c.contest.currentscore) AND c.contest.currentscore != 0 ORDER BY c.contest.currentscore DESC','users')
@@ -55,6 +59,9 @@ def UpdateStats() -> None:
             return None
         config = CommonFramework.RetrieveConfigOptions('discord')
         place = 1
+        if statrandom is True:
+            message = 'Please note that score is slightly randomized when displayed and may lead to appear that lower place is winning, true score is used when determining place.'
+            DiscordFramework.SendDiscordMessage(message=message,channelid=channelid)
         DiscordFramework.SendDiscordMessage('Current Contest results:', channelid)
         for result in results:
             userdata = DiscordFramework.get_user_guild_info(result['discordid'],config['serverid'])
