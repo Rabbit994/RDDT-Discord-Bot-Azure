@@ -133,6 +133,6 @@ while True:
     try:
         UpdateStats()
         print("Update finished")
-        time.sleep(3600*4)
+        time.sleep(3600*12)
     except:
         raise Exception
