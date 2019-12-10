@@ -86,7 +86,7 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                     pass #Future actions
                 sbmessage.complete()
                 
-        except:
-            DiscordFramework.SendDiscordMessage(str(Exception),'491800495980150789')
+        except Exception as e:
+            DiscordFramework.SendDiscordMessage(str(e),'491800495980150789')
             sbmessage.abandon() #If message fails, abandon it so it can be reprocessed quickly
             pass
