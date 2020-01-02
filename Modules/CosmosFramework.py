@@ -51,4 +51,17 @@ def ReplaceItem(documentlink:str,newdocument:dict) -> list:
         except:
                 raise Exception
         return resultreturn
- 
+
+def query_cosmos_for_user_by_wgid(wgid:int) -> None:
+        '''Gets user CosmosDB entry by wgid'''
+        results = QueryItems('SELECT * FROM c WHERE c.wgid = {0}'.format(wgid),'users')
+        if not bool(results):
+                return None
+        else:
+                return results[0]
+
+def delete_user_from_cosmos_by_discordid(discordid:str) -> None:
+        '''Deletes user from database by Discord ID'''
+        results = QueryItems('SELECT * FROM c WHERE c.discordid = "{0}"'.format(discordid),'users')
+        results = results[0]
+        RemoveItem(results['_self'],results['discordid'])

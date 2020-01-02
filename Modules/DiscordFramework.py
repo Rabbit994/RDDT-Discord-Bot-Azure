@@ -129,4 +129,18 @@ def get_member_list(guildid:str,after:str=None,limit:int=1000) -> dict:
         uri += "&after={0}".format(after)
     returndata = SendDiscordGetRequest(uri)
     return returndata
+
+def get_user_info(discordid:str) -> dict:
+    """Gets global user information"""
+    global baseuri
+    uri = "{0}/users/{1}".format(baseuri,discordid)
+    returndata = SendDiscordGetRequest(uri)
+    return returndata
+
+def get_user_guild_info(discordid:str,guildid:str) -> dict:
+    """Gets guild user data"""
+    global baseuri
+    uri = "{0}/guilds/{1}/members/{2}".format(baseuri,guildid,discordid)
+    returndata = SendDiscordGetRequest(uri)
+    return returndata
     

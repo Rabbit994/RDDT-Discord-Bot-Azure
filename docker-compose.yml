@@ -4,31 +4,31 @@ services:
     build:
         context: .
         dockerfile: discord_listener.dockerfile
-    image: 'drblistener:latest'
+    image: 'rddtdiscordbot.azurecr.io/drblistener:latest'
     restart: always
   drbhandler:
     build:
         context: .
         dockerfile: message_handler.dockerfile
-    image: 'drbhandler:latest'
+    image: 'rddtdiscordbot.azurecr.io/drbhandler:latest'
     restart: always
   drbconeremover:
     build:
         context: .
         dockerfile: cone_remover.dockerfile
-    image: 'drbconeremover:latest'
+    image: 'rddtdiscordbot.azurecr.io/drbconeremover:latest'
     restart: always
   drbwotupdater:
     build:
         context: .
         dockerfile: wot_updater.dockerfile
-    image: 'drbwotupdater:latest'
+    image: 'rddtdiscordbot.azurecr.io/drbwotupdater:latest'
     restart: always
   drbflasksite:
     build:
         context: .
         dockerfile: flask_site.dockerfile
-    image: 'drbflasksite:latest'
+    image: 'rddtdiscordbot.azurecr.io/drbflasksite:latest'
     restart: always
     ports:
       - '8080:8080'
@@ -36,5 +36,11 @@ services:
     build:
         context: .
         dockerfile: citadel_check.dockerfile
-    image: 'drbcitadelcheck:latest'
+    image: 'rddtdiscordbot.azurecr.io/drbcitadelcheck:latest'
+    restart: always
+  drbstatchecker:
+    build:
+        context: .
+        dockerfile: stat_checker.dockerfile
+    image: 'rddtdiscordbot.azurecr.io/drbstatchecker:latest'
     restart: always

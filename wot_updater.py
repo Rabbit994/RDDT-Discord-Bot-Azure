@@ -54,6 +54,10 @@ def RunUpdate():
                 CosmosFramework.ReplaceItem(results['_self'],results)
                 DiscordBotFramework.checkroles(results['discordid'])
                 
-
-RunUpdate()
-sleep(900) #Sleep for 15 minutes before restarting
+while True:
+    try:
+        RunUpdate()
+        sleep(900)
+    except:
+        sleep(900)
+        raise Exception
