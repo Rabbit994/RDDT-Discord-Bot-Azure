@@ -14,7 +14,7 @@ Click==7.0
 colorama==0.4.1
 cryptography==2.7
 defusedxml==0.6.0
-discord.py==1.2.3
+discord.py==1.2.5
 Flask==1.1.1
 Flask-OpenID==1.2.5
 idna==2.8
