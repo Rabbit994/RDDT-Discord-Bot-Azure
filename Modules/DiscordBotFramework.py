@@ -242,6 +242,20 @@ def startcontest(body:dict) -> dict:
         returnmessage['author'] = 'Contest started for {0} days'.format(discordmessage[1])
         return returnmessage
 
+def addgame(body:dict) -> dict:
+    returnmessage = {}
+    discordmessage = __get_split_message(body['message'])
+    try:
+        game = discordmessage[1]
+        results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.game = %s'.format(game),'game')
+        if not bool(results):
+            game = {'game': game}
+            game['messageid'] = body['messageid']
+            CosmosFramework.InsertItem(game,'game')
+    except ValueError:
+        returnmessage['channel'] = "You didn't pass in a game"
+
+
 #Private def
 
 def __discord_id_from_mention(discordid:str) -> str:
