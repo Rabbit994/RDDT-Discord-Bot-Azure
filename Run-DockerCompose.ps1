@@ -12,6 +12,7 @@ switch($Action){
     }
     "up" {
         Start-Process 'docker-compose' -ArgumentList 'up -d --build' -NoNewWindow -Wait
+        Start-Process 'docker' -ArgumentList 'system prune -f'
     }
     "down" {
         Start-Process 'docker-compose' -ArgumentList 'down' -NoNewWindow -Wait
