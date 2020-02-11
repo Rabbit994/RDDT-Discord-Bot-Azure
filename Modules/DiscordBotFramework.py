@@ -39,7 +39,7 @@ def register(message: dict) -> dict:
         CosmosFramework.InsertItem(document)
         returnmessage['channel'] = "Welcome {0}! Check your direct messages for a link.".format(message['authordisplayname'])
         returnmessage['author'] = genURL(document['wgtoken'])
-    elif result[0]['wgtoken'] is not None:
+    elif result[0]['wgtoken'] is not None and 'wgid' not in result[0]:
         returnmessage['author'] = genURL(result[0]['wgtoken'])
     elif result[0]['wgid'] is not None:
         returnmessage['author'] = "You have already registered"
