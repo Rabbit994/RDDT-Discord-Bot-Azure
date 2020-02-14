@@ -1,6 +1,7 @@
 import json
 import os
 import urllib.request
+import ssl
 
 def RetrieveConfigOptions(key:str) -> dict:
     try:
