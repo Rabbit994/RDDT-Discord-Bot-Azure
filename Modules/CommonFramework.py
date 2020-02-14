@@ -30,7 +30,7 @@ def convert_date_time_epoch(datetime:str) -> int:
 
 def GetClanBattles(clanid):
     def clantools_get_json_data(uri: str) -> dict:
-        """Returns JSON Data in dict format"""
+        #This is fix for clantools certificate always expiring
         try:
             ctx = ssl.create_default_context()
             ctx.check_hostname = False
