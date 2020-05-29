@@ -34,3 +34,11 @@ def player_data_info(wgid:List[int]) -> dict:
         uri = 'https://api.worldoftanks.com/wot/account/info/?application_id={0}&account_id={1}&extra=statistics.random'.format(apikey,wgidcsv)
         playerdata = CommonFramework.get_json_data(uri)
         return playerdata
+
+def get_gm_elo_data(top:int) -> dict:
+    """Gets top clans by ELO for Global Map"""
+    wgapi = CommonFramework.RetrieveConfigOptions('wargaming')
+    uri = "https://api.worldoftanks.com/wot/clanratings/top/ \
+    ?application_id={0}&rank_field=gm_elo_rating&limit={1}".format(wgapi['apitoken'],top)
+    apiresults = CommonFramework.get_json_data(uri)
+    return apiresults

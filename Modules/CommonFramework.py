@@ -1,6 +1,7 @@
 import json
 import os
 import urllib.request
+import ssl
 
 def RetrieveConfigOptions(key:str) -> dict:
     try:
@@ -29,6 +30,19 @@ def convert_date_time_epoch(datetime:str) -> int:
     return int(t_in_seconds)
 
 def GetClanBattles(clanid):
+    def clantools_get_json_data(uri: str) -> dict:
+        #This is fix for clantools certificate always expiring
+        try:
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            response = urllib.request.urlopen(uri, timeout=60, context=ctx)
+            urldata = response.read().decode("utf-8","ignore")
+            jsondata = json.loads(urldata)
+            return jsondata
+        except:
+            return None
+    
     clantoolsurl = 'https://sv.clantools.us/integrations/battles/report?provider=na&tz=et&service=slack&clan_id={0}'.format(clanid)
-    data = get_json_data(clantoolsurl)
+    data = clantools_get_json_data(clantoolsurl)
     return data

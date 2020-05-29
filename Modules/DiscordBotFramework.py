@@ -39,10 +39,10 @@ def register(message: dict) -> dict:
         CosmosFramework.InsertItem(document)
         returnmessage['channel'] = "Welcome {0}! Check your direct messages for a link.".format(message['authordisplayname'])
         returnmessage['author'] = genURL(document['wgtoken'])
+    elif result[0]['wgtoken'] is not None and 'wgid' not in result[0]:
+        returnmessage['author'] = genURL(result[0]['wgtoken'])
     elif result[0]['wgid'] is not None:
         returnmessage['author'] = "You have already registered"
-    elif result[0]['token'] is not None:
-        returnmessage['author'] = genURL(document['wgtoken'])
     return returnmessage
 
 def update(message):
@@ -241,6 +241,20 @@ def startcontest(body:dict) -> dict:
         CosmosFramework.InsertItem(doc,'contest')
         returnmessage['author'] = 'Contest started for {0} days'.format(discordmessage[1])
         return returnmessage
+
+def addgame(body:dict) -> dict:
+    returnmessage = {}
+    discordmessage = __get_split_message(body['message'])
+    try:
+        game = discordmessage[1]
+        results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.game = %s'.format(game),'game')
+        if not bool(results):
+            game = {'game': game}
+            game['messageid'] = body['messageid']
+            CosmosFramework.InsertItem(game,'game')
+    except ValueError:
+        returnmessage['channel'] = "You didn't pass in a game"
+
 
 #Private def
 

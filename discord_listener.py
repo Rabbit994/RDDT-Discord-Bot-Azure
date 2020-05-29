@@ -29,6 +29,7 @@ async def on_message(message):
     
     if message.guild is None or message.content.startswith(commandprefix): #Adding support for Private Message
         discordmessage = {}
+        discordmessage['messageid'] = message.id
         discordmessage['authorid'] = message.author.id 
         discordmessage['authordisplayname'] = message.author.display_name
         discordmessage['authormention'] = message.author.mention

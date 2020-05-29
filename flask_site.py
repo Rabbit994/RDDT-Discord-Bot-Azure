@@ -65,8 +65,12 @@ def respond_to_login(resp):
         response_message += "Token invalid. If you think this is incorrect, contact an Administrator <br/>"
     else:
         results = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wgtoken = "{0}"'.format(token),'users')
+        wgidcheck = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.wgid={0}'.format(wgid),'users')
+
         if not bool(results):
             response_message += "Unknown token"
+        elif bool(wgidcheck):
+            response_message += "You are already registered with the bot, please contact Rabbit for further assistance"
         else:
             results = results[0]
             results['wgid'] = int(wgid)
