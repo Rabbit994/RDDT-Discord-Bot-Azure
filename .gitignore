@@ -107,3 +107,4 @@ venv.bak/
 parameters.json
 Tester.py
 .vscode/
+test.json
