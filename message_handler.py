@@ -57,7 +57,6 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                             data = CommonFramework.GetClanBattles(1000002659)
                             webhooks = CommonFramework.RetrieveConfigOptions('webhooks')
                             requests.post(webhooks['rdtt2'], data=data)
-                        
 
                     elif discordmessage[0] == '!update':
                         if body['guildchannelid'] == 506659095521132554:
@@ -87,7 +86,10 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
 
                     elif discordmessage[0] == '!addgame':
                         pass
-                        
+
+                    elif "discord.gift" in body['message']:
+                        pass
+                    
                 elif body['type'] == 'reactionadd':
                     pass #Future actions
                 elif body['type'] == 'reactionremove':

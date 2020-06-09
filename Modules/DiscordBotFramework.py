@@ -255,7 +255,13 @@ def addgame(body:dict) -> dict:
     except ValueError:
         returnmessage['channel'] = "You didn't pass in a game"
 
+class DeleteMessage:
+    def __init__(self,messageid,channelid):
+        self.messageid = messageid
+        self.channelid = channelid
 
+    def delete_message(self):
+        pass
 #Private def
 
 def __discord_id_from_mention(discordid:str) -> str:
