@@ -4,7 +4,7 @@ import os
 from time import sleep
 import Modules.CommonFramework as CommonFramework
 
-baseuri = "https://discordapp.com/api"
+baseuri = "https://discord.com/api"
 config = CommonFramework.RetrieveConfigOptions("discord")
 
 
@@ -143,4 +143,10 @@ def get_user_guild_info(discordid:str,guildid:str) -> dict:
     uri = "{0}/guilds/{1}/members/{2}".format(baseuri,guildid,discordid)
     returndata = SendDiscordGetRequest(uri)
     return returndata
-    
+
+def delete_message(messageid:str,channelid:str) -> None:
+    """Deletes messaage"""
+    global baseuri
+    uri = f"{baseuri}/channels/{channelid}/messages/{messageid}"
+    returndata = SendDiscordDeleteRequest(uri)
+    return returndata   
