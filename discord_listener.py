@@ -27,7 +27,10 @@ async def on_message(message):
     if message.author == discordclient.user:
         return None #Bot ignores itself
     
-    if message.guild is None or message.content.startswith(commandprefix): #Adding support for Private Message
+    if (message.guild is None 
+        or message.content.startswith(commandprefix)
+        or message.content.contains('https')
+    ): #Adding support for Private Message
         discordmessage = {}
         discordmessage['messageid'] = message.id
         discordmessage['authorid'] = message.author.id 
