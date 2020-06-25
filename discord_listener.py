@@ -29,7 +29,7 @@ async def on_message(message):
     
     if (message.guild is None 
         or message.content.startswith(commandprefix)
-        or message.content.contains('https')
+        or message.content.contains('http')
     ): #Adding support for Private Message
         discordmessage = {}
         discordmessage['messageid'] = message.id
