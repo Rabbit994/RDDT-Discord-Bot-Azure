@@ -87,9 +87,11 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                     elif discordmessage[0] == '!addgame':
                         pass
 
-                    elif "discord.gift" in body['message']:
-                        pass
-                    
+                    elif "http" in body['message'].lower():
+                        returnmessage = DiscordBotFramework.handle_links(body)
+                        if returnmessage:
+                            __return_message(body,returnmessage)
+                        
                 elif body['type'] == 'reactionadd':
                     pass #Future actions
                 elif body['type'] == 'reactionremove':
