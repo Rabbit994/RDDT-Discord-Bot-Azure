@@ -1,20 +1,29 @@
 """
 This is check for Wargaming NA Stream and posting if active"""
-
-from Modules import CommonFramework
 import time
 
 from Modules.twitch import TwitchAPI
-import Modules.CosmosFramework as CosmosFramework
-import Modules.wotframework as wotframework
-import Modules.DiscordBotFramework as DiscordBotFramework
 import Modules.CommonFramework as CommonFramework
+import Modules.DiscordFramework as DiscordFramework
 
+channelid = '414607006821777440'
 options = CommonFramework.RetrieveConfigOptions("twitch")
 twitch = TwitchAPI(options['clientid'],options['clientsecret'])
-active = False #set to true if active and stream posted
+users = ['worldoftanksna','usarmyesports']
+active = {}
+for user in users:
+    active[user] = False
 while True:
-    
-    currentstreams = twitch.get_streams_by_userlogin(userlogin="worldoftanksna")
-    if currentstreams['data']
-    time.sleep(300)
+    for user in users:
+        currentstreams = twitch.get_streams_by_userlogin(userlogin=user)
+        if len(currentstreams['data']) > 0 and active[user] is False:
+            embed = {"title": f"Twitch Streamer {user} is active"}
+            embed['type'] = 'rich'
+            title = currentstreams['data'][0]['title']
+            embed['description'] = f"Twitch Stream {user} is currently active and streaming {title}"
+            embed['url'] = f"https://www.twitch.tv/{user}"
+            DiscordFramework.SendDiscordMessage(message=None,channelid=channelid,embed=embed)
+            active[user] = True
+        elif len(currentstreams['data']) == 0 and active[user] is True:
+            active[user] = False  
+    time.sleep(600)
