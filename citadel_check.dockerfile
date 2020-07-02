@@ -9,11 +9,11 @@ FROM python:3.7-slim-buster
 #FROM continuumio/miniconda3
 
 WORKDIR /app
+COPY requirements.txt .
 RUN python3 -m pip install -r requirements.txt
 
 COPY Modules/ Modules/
 COPY parameters/parameters.json parameters/
-COPY requirements.txt .
 COPY citadel_check.py .
 
 CMD ["python3", "./citadel_check.py"]

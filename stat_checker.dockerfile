@@ -9,12 +9,11 @@ FROM python:3.7-slim-buster
 #FROM continuumio/miniconda3
 
 WORKDIR /app
+COPY requirements.txt .
 RUN python3 -m pip install -r requirements.txt
 
 COPY Modules/ Modules/
 COPY parameters/parameters.json parameters/
-COPY requirements.txt .
 COPY stat_checker.py .
-
 
 CMD ["python3", "./stat_checker.py"]
