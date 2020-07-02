@@ -14,8 +14,8 @@ WORKDIR /app
 COPY Modules/ Modules/
 COPY parameters/parameters.json parameters/
 COPY requirements.txt .
-COPY flask_site.py .
-EXPOSE 8080
+COPY twitch_checker.py .
+
 # Using pip:
 RUN python3 -m pip install -r requirements.txt
-CMD ["python3", "./flask_site.py"]
+CMD ["python3", "./twitch_checker.py"]

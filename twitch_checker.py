@@ -6,14 +6,15 @@ from Modules.twitch import TwitchAPI
 import Modules.CommonFramework as CommonFramework
 import Modules.DiscordFramework as DiscordFramework
 
+i = 0
 channelid = '414607006821777440'
 options = CommonFramework.RetrieveConfigOptions("twitch")
 twitch = TwitchAPI(options['clientid'],options['clientsecret'])
-users = ['worldoftanksna','usarmyesports']
+users = ['worldoftanksna']
 active = {}
 for user in users:
     active[user] = False
-while True:
+while i < 1008:
     for user in users:
         currentstreams = twitch.get_streams_by_userlogin(userlogin=user)
         if len(currentstreams['data']) > 0 and active[user] is False:
@@ -25,5 +26,6 @@ while True:
             DiscordFramework.SendDiscordMessage(message=None,channelid=channelid,embed=embed)
             active[user] = True
         elif len(currentstreams['data']) == 0 and active[user] is True:
-            active[user] = False  
+            active[user] = False 
+    i += 1 
     time.sleep(600)
