@@ -8,14 +8,12 @@ FROM python:3.7-slim-buster
 # If you prefer miniconda:
 #FROM continuumio/miniconda3
 
-LABEL Name=discord-rddt-bot Version=1.0.0
-
 WORKDIR /app
+RUN python3 -m pip install -r requirements.txt
+
 COPY Modules/ Modules/
 COPY parameters/parameters.json parameters/
 COPY requirements.txt .
 COPY wot_updater.py .
 
-# Using pip:
-RUN python3 -m pip install -r requirements.txt
 CMD ["python3", "./wot_updater.py"]
