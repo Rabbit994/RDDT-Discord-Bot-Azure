@@ -257,7 +257,7 @@ def addgame(body:dict) -> dict:
 
 def handle_links(body:dict) -> dict:
     returnmessage = {}
-    if 'discord.gift' in body['message'].tolower():
+    if 'discord.gift' in body['message'].lower():
         returnmessage['channel'] = "Discord.gift links are not allowed"
         DiscordFramework.delete_message(messageid=body['messageid'],channelid=body['guildchannelid'])
     return returnmessage
