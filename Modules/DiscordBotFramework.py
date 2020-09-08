@@ -255,6 +255,13 @@ def addgame(body:dict) -> dict:
     except ValueError:
         returnmessage['channel'] = "You didn't pass in a game"
 
+def handle_links(body:dict) -> dict:
+    returnmessage = {}
+    if 'discord.gift' in body['message'].lower():
+        returnmessage['channel'] = "Discord.gift links are not allowed"
+        DiscordFramework.delete_message(messageid=body['messageid'],channelid=body['guildchannelid'])
+    return returnmessage
+    
 
 #Private def
 

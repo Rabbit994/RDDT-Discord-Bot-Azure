@@ -44,3 +44,9 @@ services:
         dockerfile: stat_checker.dockerfile
     image: 'rddtdiscordbot.azurecr.io/drbstatchecker:latest'
     restart: always
+  drbtwitchchecker:
+    build:
+        context: .
+        dockerfile: twitch_checker.dockerfile
+    image: 'rddtdiscordbot.azurecr.io/drbtwitchchecker:latest'
+    restart: always

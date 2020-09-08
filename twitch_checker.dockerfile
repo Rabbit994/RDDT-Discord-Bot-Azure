@@ -14,6 +14,6 @@ RUN python3 -m pip install -r requirements.txt
 
 COPY Modules/ Modules/
 COPY parameters/parameters.json parameters/
-COPY citadel_check.py .
+COPY twitch_checker.py .
 
-CMD ["python3", "./citadel_check.py"]
+CMD ["python3", "./twitch_checker.py"]
