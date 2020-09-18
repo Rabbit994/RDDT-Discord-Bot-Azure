@@ -29,7 +29,7 @@ def convert_date_time_epoch(datetime:str) -> int:
     t_in_seconds = parsed_t.timestamp()
     return int(t_in_seconds)
 
-def GetClanBattles(clanid):
+def GetClanBattles(clanid:int):
     def clantools_get_json_data(uri: str) -> dict:
         #This is fix for clantools certificate always expiring
         try:
