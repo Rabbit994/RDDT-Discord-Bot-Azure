@@ -53,7 +53,7 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                             data = CommonFramework.GetClanBattles(1000003392)
                             webhooks = CommonFramework.RetrieveConfigOptions('webhooks')
                             requests.post(webhooks['tl-dr'], data=data)
-                        elif body['guildchannelid'] == 506644698920779816: #RDTT2
+                        elif body['guildchannelid'] == 509529887988645892: #RDTT2
                             data = CommonFramework.GetClanBattles(1000002659)
                             webhooks = CommonFramework.RetrieveConfigOptions('webhooks')
                             requests.post(webhooks['rdtt2'], data=data)
