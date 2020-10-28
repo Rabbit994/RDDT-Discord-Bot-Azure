@@ -38,7 +38,8 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                 if body['type'] == 'message':
                     discordmessage = body['message'].split()
                     #print(body)
-                    if discordmessage[0] == '!register' and (body['guildchannelid'] == 507725600073449482 or body['privatemessage'] == True):
+                    if discordmessage[0] == '!register' and (
+                    body['guildchannelid'] == 507725600073449482 or body.get("privatemessage") is True):
                         returnmessage = DiscordBotFramework.register(body)
                         if 'privatemessage' in body:
                             del returnmessage['channel']
