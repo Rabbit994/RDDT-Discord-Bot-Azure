@@ -157,6 +157,7 @@ def cone(body:dict) -> dict:
             returnmessage['target'] = 'You were muted for {0} minutes by {1}'.format(timetocone,body['authordisplayname'])
     except Exception as e:
         returnmessage['author'] = 'Following error has occured: {0}'.format(e)
+    return returnmessage
         
 def citadel(body:dict) -> dict:
     returnmessage = {}
