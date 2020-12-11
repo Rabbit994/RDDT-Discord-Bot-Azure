@@ -2,11 +2,40 @@ import json
 import requests
 import os
 from time import sleep
+
+#from requests.api import request
 import Modules.CommonFramework as CommonFramework
 
 baseuri = "https://discord.com/api"
 config = CommonFramework.RetrieveConfigOptions("discord")
 
+
+class DiscordHTTP:
+    def __init__(self) -> None:
+        global config
+        self.token = config['token']
+        self.baseuri = "https://discord.com/api"
+
+    def __generate_discord_header(self) -> dict:
+        header = {'Authorization': str(f"Bot {self.token}"), 'User-Agent': '/r/worldoftanks Discord Bot (https://github.com/Rabbit994/RDDT-Discord-Bot-Azure, v1.0.5)'}
+        return header
+    
+    def __send_discord_put_request(self, uri:str):
+        statuscode = 0
+        while statuscode < 200 or statuscode > 300:
+            r = requests.put(uri, headers=self.__generate_discord_header())
+            statuscode = r.status_code
+            if statuscode == 429:
+                sleep(int(r.headers['X-RateLimit-Reset-After']))
+            return r
+
+    def add_reaction_to_message(self, channelid:int, messageid:int, emoji:str) -> int:
+        """Adds reaction to message, pass str of emoji id, will return status code"""
+        emoji = emoji.replace(":","%3A")
+        emoji = emoji.replace("+","%2B")
+        uri = f"{self.baseuri}/channels/{channelid}/messages/{messageid}/reactions/{emoji}/@me"
+        response = self.__send_discord_put_request(uri=uri)
+        return response.status_code
 
 ##Private Functions
 def GetDiscordHeaders():
@@ -106,7 +135,8 @@ def send_discord_private_message(message,discordid):
     body = {}
     body['recipient_id'] = discordid
     data = SendDiscordPostRequest(uri,body)
-    SendDiscordMessage(message,data['id'])
+    messagedata = SendDiscordMessage(message,data['id'])
+    return messagedata
 
 def get_channel_info(channelid:str) -> dict:
     global baseuri
