@@ -2,10 +2,7 @@ import json
 import requests
 import os
 from time import sleep
-
-#from requests.api import request
 import Modules.CommonFramework as CommonFramework
-
 baseuri = "https://discord.com/api"
 config = CommonFramework.RetrieveConfigOptions("discord")
 
@@ -22,12 +19,14 @@ class DiscordHTTP:
     
     def __send_discord_put_request(self, uri:str):
         statuscode = 0
-        while statuscode < 200 or statuscode > 300:
+        for x in range(0,3):
             r = requests.put(uri, headers=self.__generate_discord_header())
             statuscode = r.status_code
-            if statuscode == 429:
+            if statuscode == 429: #If 
                 sleep(int(r.headers['X-RateLimit-Reset-After']))
-            return r
+            elif statuscode in range(200,299):
+                return r
+        return r #Return r which will be HTTP error
 
     def add_reaction_to_message(self, channelid:int, messageid:int, emoji:str) -> int:
         """Adds reaction to message, pass str of emoji id, will return status code"""
