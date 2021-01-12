@@ -28,7 +28,7 @@ class MessageHandler:
         self.splitmessage = self.__split_message()
         self.info = MessageHandler.Info()
 
-    def __split_message(self) -> List(str):
+    def __split_message(self) -> list:
         return self.message['message'].split(" ")
 
 
