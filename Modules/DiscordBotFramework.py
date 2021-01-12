@@ -5,12 +5,32 @@ import hashlib
 import datetime
 import time
 import random
+from typing import List
 
 #Local Modules
 import Modules.CommonFramework as CommonFramework
 import Modules.CosmosFramework as CosmosFramework
 import Modules.DiscordFramework as DiscordFramework
 import Modules.wotframework as wotframework
+
+class MessageHandler:
+    class Info:
+        def __init__(self,parent):
+            self.parent = parent
+
+        def get_user_info(self):
+            query = f"SELECT * FROM c WHERE c.discordid='{self.parent.splitmessage[1]}'"
+            result = CosmosFramework.QueryItems()
+            
+    
+    def __init__(self,message:dict):
+        self.message = message
+        self.splitmessage = self.__split_message()
+        self.info = MessageHandler.Info()
+
+    def __split_message(self) -> List(str):
+        return self.message['message'].split(" ")
+
 
 #Public def
 def register(message: dict) -> dict:

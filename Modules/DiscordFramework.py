@@ -28,6 +28,18 @@ class DiscordHTTP:
                 return r
         return r #Return r which will be HTTP error
 
+    def __send_discord_post_request(self, uri:str, body:dict):
+        statuscode = 0
+        #r = requests.post(uri, json=body, headers=GetDiscordHeaders())
+        for x in range(0,3):
+            r = requests.post(url=uri, json=body, headers=self.__generate_discord_header())
+            statuscode = r.status_code
+            if statuscode == 429:
+                sleep(int(r.headers['X-RateLimit-Reset-After']))
+            elif statuscode in range(200,299):
+                return r
+        return r
+
     def add_reaction_to_message(self, channelid:int, messageid:int, emoji:str) -> int:
         """Adds reaction to message, pass str of emoji id, will return status code"""
         emoji = emoji.replace(":","%3A")
@@ -36,6 +48,11 @@ class DiscordHTTP:
         response = self.__send_discord_put_request(uri=uri)
         return response.status_code
 
+    def post_message(self,message:str, channelid:int, embed:dict = None):
+        #Post message
+        uri = f"{self.baseuri}/channels/{channelid}/messages"
+        
+        pass
 ##Private Functions
 def GetDiscordHeaders():
     """Generates Header for Discord HTTP requests"""
