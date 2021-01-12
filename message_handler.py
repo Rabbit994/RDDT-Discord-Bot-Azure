@@ -58,6 +58,10 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                             data = CommonFramework.GetClanBattles(1000002659)
                             webhooks = CommonFramework.RetrieveConfigOptions('webhooks')
                             requests.post(webhooks['rdtt2'], data=data)
+                        elif body['guildchannelid'] == 713854191784820827: #RDDT6
+                            data = CommonFramework.GetClanBattles(1000005754)
+                            webhooks = CommonFramework.RetrieveConfigOptions('webhooks')
+                            requests.post(webhooks['rddt6'], data=data)
 
                     elif discordmessage[0] == '!update':
                         if body['guildchannelid'] == 506659095521132554:
