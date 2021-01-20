@@ -27,10 +27,18 @@ class DiscordHTTP:
             elif statuscode in range(200,299):
                 return r
         return r #Return r which will be HTTP error
+    
+    def __send_discord_delete_request(self, uri:str):
+        for x in range(0,3):
+            r = requests.delete(url=uri, headers=self.__generate_discord_header())
+            statuscode = r.status_code
+            if statuscode == 429:
+                sleep(int(r.headers['X-RateLimit-Reset-After']))
+            elif statuscode in range(200,299):
+                return r
+        return r
 
     def __send_discord_post_request(self, uri:str, body:dict):
-        statuscode = 0
-        #r = requests.post(uri, json=body, headers=GetDiscordHeaders())
         for x in range(0,3):
             r = requests.post(url=uri, json=body, headers=self.__generate_discord_header())
             statuscode = r.status_code
@@ -46,6 +54,22 @@ class DiscordHTTP:
         emoji = emoji.replace("+","%2B")
         uri = f"{self.baseuri}/channels/{channelid}/messages/{messageid}/reactions/{emoji}/@me"
         response = self.__send_discord_put_request(uri=uri)
+        return response.status_code
+    
+    def add_role_to_user(self,guildid:int,userid:int,roleid:int):
+        uri = f"{self.baseuri}/guilds/{guildid}/members/{userid}/roles/{roleid}"
+        response = self.__send_discord_put_request(uri)
+        if response.status_code != 204: #send it again
+            sleep(5)
+            response = self.__send_discord_put_request(uri)
+        return response.status_code
+
+    def remove_role_from_user(self,guildid:int,userid:int,roleid:int):
+        uri = f"{self.baseuri}/guilds/{guildid}/members/{userid}/roles/{roleid}"
+        response = self.__send_discord_delete_request(uri)
+        if response.status_code != 204: #send it again
+            sleep(5)
+            response = self.__send_discord_delete_request(uri)
         return response.status_code
 
     def post_message(self,message:str, channelid:int, embed:dict = None):
