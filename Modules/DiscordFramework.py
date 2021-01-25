@@ -50,6 +50,8 @@ class DiscordHTTP:
 
     def add_reaction_to_message(self, channelid:int, messageid:int, emoji:str) -> int:
         """Adds reaction to message, pass str of emoji id, will return status code"""
+        if channelid is None or messageid is None or emoji is None:
+            return None
         emoji = emoji.replace(":","%3A")
         emoji = emoji.replace("+","%2B")
         uri = f"{self.baseuri}/channels/{channelid}/messages/{messageid}/reactions/{emoji}/@me"

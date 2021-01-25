@@ -61,27 +61,27 @@ def register(message: dict) -> dict:
         #returnmessage['author'] = genURL(document['wgtoken'])
         pmresult = DiscordFramework.send_discord_private_message(message=genURL(document['wgtoken']),discordid=message['authorid'])
         if pmresult.get('message') == 'Cannot send messages to this user':
-            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message['guildchannelid'],
+            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message.get('guildchannelid'),
                 messageid=message['messageid'], emoji="❌")
         else:
-            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message['guildchannelid'],
+            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message.get('guildchannelid'),
                 messageid=message['messageid'], emoji="\N{WHITE HEAVY CHECK MARK}")
     elif result[0]['wgtoken'] is not None and 'wgid' not in result[0]:
         pmresult = DiscordFramework.send_discord_private_message(message=genURL(result[0]['wgtoken']),discordid=message['authorid'])
         if pmresult.get('message') == 'Cannot send messages to this user':
-            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message['guildchannelid'],
+            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message.get('guildchannelid'),
                 messageid=message['messageid'], emoji="❌")
         else:
-            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message['guildchannelid'],
+            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message.get('guildchannelid'),
                 messageid=message['messageid'], emoji="\N{WHITE HEAVY CHECK MARK}")
         #returnmessage['author'] = genURL(result[0]['wgtoken'])
     elif result[0]['wgid'] is not None:
         pmresult = DiscordFramework.send_discord_private_message(message="You have already registered",discordid=message['authorid'])
         if pmresult.get('message') == 'Cannot send messages to this user':
-            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message['guildchannelid'],
+            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message.get('guildchannelid'),
                 messageid=message['messageid'], emoji="❌")
         else:
-            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message['guildchannelid'],
+            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message.get('guildchannelid'),
                 messageid=message['messageid'], emoji="\N{WHITE HEAVY CHECK MARK}")
         #returnmessage['author'] = "You have already registered"
     return returnmessage
