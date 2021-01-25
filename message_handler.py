@@ -92,9 +92,6 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                         returnmessage = DiscordBotFramework.startcontest(body)
                         __return_message(body,returnmessage)
 
-                    elif discordmessage[0] == '!addgame':
-                        pass
-
                     elif "http" in body['message'].lower():
                         returnmessage = DiscordBotFramework.handle_links(body)
                         if returnmessage:
