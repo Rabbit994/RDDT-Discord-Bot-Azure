@@ -96,7 +96,7 @@ class _Info:
             #user_clan_field = {"Clan Tag:": clan_tag}
             user_clan_tag_field = {'name': "*Clan Tag*", 'value': f"{clan_tag}", 'inline': False}
         #user_wn8_recent_field = {"WN8 60 Day Recent:": userinfo['recents']['recent60days']['overallWN8']}
-        user_wn8_recent_field = {'name': "WN8 60 Day Recent", 
+        user_wn8_recent_field = {'name': "*60 Day WN8*", 
             'value': f"{userinfo['recents']['recent60days']['overallWN8']}", 
             'inline': True}
         winrate = (int(userinfo['recents']['recent60days']['wins']) / (int(userinfo['recents']['recent60days']['wins']) + int(userinfo['recents']['recent60days']['losses']))) * 100
