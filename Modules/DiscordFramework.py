@@ -48,6 +48,29 @@ class DiscordHTTP:
                 return r
         return r
 
+    def __send_discord_post_embed_request(self, uri:str, body:dict):
+        for x in range(0,3):
+            body_str = json.dumps(body)
+            headers = self.__generate_discord_header()
+            headers['content-type'] = 'application/json'
+            r = requests.post(url=uri, data=body_str, headers=headers)
+            statuscode = r.status_code
+            if statuscode == 429:
+                sleep(int(r.headers['X-RateLimit-Reset-After']))
+            elif statuscode in range(200,299):
+                return r
+        return r
+
+    def __send_discord_get_request(self, uri:str):
+        for x in range(0,3):
+            r = requests.get(url=uri, headers=self.__generate_discord_header())
+            statuscode = r.status_code
+            if statuscode == 429:
+                sleep(int(r.headers['X-RateLimit-Reset-After']))
+            elif statuscode in range(200,299):
+                return r
+        return r
+
     def add_reaction_to_message(self, channelid:int, messageid:int, emoji:str) -> int:
         """Adds reaction to message, pass str of emoji id, will return status code"""
         if channelid is None or messageid is None or emoji is None:
@@ -74,16 +97,25 @@ class DiscordHTTP:
             response = self.__send_discord_delete_request(uri)
         return response.status_code
 
-    def post_message(self, channelid:int, message:str = None, embed:dict = None):
+    def post_message(self, channelid:int, message:str, embed:dict = None):
         #Post message
         uri = f"{self.baseuri}/channels/{channelid}/messages"
         if embed is None:
             message = {"content": message}
             message['tts'] = False
+            return self.__send_discord_post_request(uri=uri, body = message)
         else:
-            message = {'embed': embed}
-        return self.__send_discord_post_request(uri=uri, body = message)
-        
+            message_body = {'embed': embed}
+            message_body['content'] = message
+            message_body['tts'] = False
+            return self.__send_discord_post_embed_request(uri=uri, body=message_body)
+        #return self.__send_discord_post_request(uri=uri, body = message)
+
+    def get_user(self, discordid:int) -> dict:
+        uri = f"{self.baseuri}/guilds/414198832092545037/members/{discordid}"
+        response = self.__send_discord_get_request(uri)
+        return response
+
 ##Private Functions
 def GetDiscordHeaders():
     """Generates Header for Discord HTTP requests"""

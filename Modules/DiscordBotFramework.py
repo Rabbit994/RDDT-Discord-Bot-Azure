@@ -26,10 +26,10 @@ class MessageHandler:
         return self.message['message'].split(" ")
 
     def info(self):
-        __Info(self.message, self.splitmessage).handle_info()
+        _Info(self.message, self.splitmessage).handle_info()
         
 
-class __Info:
+class _Info:
 
     def __init__(self, message:dict, message_split:list):
         self.message = message
@@ -43,8 +43,8 @@ class __Info:
             query = f"SELECT * FROM c WHERE c.wgid = {self.message_split[1]}"
             result = CosmosFramework.QueryItems(cosmosdbquery=query, container='users')
             
-        elif len(self.message_split[1]) in range(17,18):
-            query = f"SELECT * FROM c WHERE c.discordid='{self.message_split[1]}"
+        elif len(self.message_split[1]) in range(17,19):
+            query = f"SELECT * FROM c WHERE c.discordid='{self.message_split[1]}'"
             result = CosmosFramework.QueryItems(
                 cosmosdbquery=query,
                 container='users'
@@ -53,7 +53,7 @@ class __Info:
         else:
             self.discord.post_message(
                 message= "Improper request, please pass in DiscordID or Wargaming ID",
-                channelid=self.discord.message['guildchannelid']
+                channelid=self.message['guildchannelid']
             )
             return None
         if not result: #User doesn't exist
@@ -62,27 +62,49 @@ class __Info:
                     channelid=self.message['guildchannelid'],    
                 )
                 return None #All done
-        userinfo = TomatoGG.get_user_info(result[0]['wgid'])
-        if result[0].get('clan') is not None:
+        userinfo = TomatoGG().get_user_info(wgid=result[0]['wgid'])
+        if result[0].get('clan') is None:
             clan = "None"
             clan_tag = None
         else:
             clan = wotframework.GetClanInfo(result[0].get('clan'))
-            clan = clan['data'][result[0]['clan']]['name']
-            clan_tag = clan['data'][result[0]['clan']]['tag']
+            clan_tag = clan['data'][str(result[0]['clan'])]['tag']
+            clan = clan['data'][str(result[0]['clan'])]['name']
+            
+        discord_user_info = DiscordHTTP().get_user(f"{result[0]['discordid']}")
+        discord_user_info = discord_user_info.json()
+        if discord_user_info['nick'] is None:
+            discord_nickname = discord_user_info['user']['username']
+        else:
+            discord_nickname = discord_user_info['nick']
         
-        embed = {"title": f"User info as requested by {self.message['authormention']}"}
-        user_info_field = {"WoT User Name:": userinfo['username']}
-        user_clan_field = {"Clan Name:": clan}
+        discord_user_info_field = {'name': 'Discord Nick', 'value': f"{discord_nickname}", 'inline': False}
+        embed = {"title": f"User info"}
+        embed['type'] = 'rich'
+        #user_info_field = {"WoT User Name": userinfo['username']}
+        user_info_field = {'name': 'WoT User Name', 'value': f"{userinfo['username']}", 'inline': False}
+        #user_clan_field = {"Clan Name:": clan}
+        user_clan_field = {'name': 'Clan Name', 'value': f"{clan}", 'inline': False}
+        user_clan_tag_field = {'name': 'Clan Tag', 'value': f"None", 'inline': False}
         if clan_tag is not None:
-            user_clan_field = {"Clan Tag:": clan_tag}
-        user_wn8_recent_field = {"WN8 60 Day Recent:": userinfo['recents']['recent60days']['overallWN8']}
-        winrate = int(userinfo['recents']['recent60days']['wins']) / (int(userinfo['recents']['recent60days']['wins']) + int(userinfo['recents']['recent60day']['losses']))
-        user_winrate_field = {"60 Day WinRate": winrate}
-        data_info_field = {"Data Provided by tomato.gg": f"https://www.tomato.gg/stats/NA/{userinfo['username']}-{result[0]['wgid']}"}
-        fields = [user_info_field,user_clan_field,user_wn8_recent_field,user_winrate_field,data_info_field]
+            #user_clan_field = {"Clan Tag:": clan_tag}
+            user_clan_tag_field = {'name': "Clan Tag", 'value': f"{clan_tag}", 'inline': False}
+        #user_wn8_recent_field = {"WN8 60 Day Recent:": userinfo['recents']['recent60days']['overallWN8']}
+        user_wn8_recent_field = {'name': "WN8 60 Day Recent", 
+            'value': f"{userinfo['recents']['recent60days']['overallWN8']}", 
+            'inline': True}
+        winrate = (int(userinfo['recents']['recent60days']['wins']) / (int(userinfo['recents']['recent60days']['wins']) + int(userinfo['recents']['recent60days']['losses']))) * 100
+        winrate = round(winrate, 2)
+        #user_winrate_field = {"60 Day WinRate": winrate}
+        user_winrate_field = {'name': "60 Day WinRate", 'value': f"{winrate}", 'inline': False}
+        #data_info_field = {"Data Provided by tomato.gg": f"https://www.tomato.gg/stats/NA/{userinfo['username']}-{result[0]['wgid']}"}
+        #data_info_field = {'name': 'Data Provided by tomato.gg',
+        #    'value': f"https://www.tomato.gg/stats/NA/{userinfo['username']}-{result[0]['wgid']}",
+        #    'inline': True}
+        embed['url'] = f"https://www.tomato.gg/stats/NA/{userinfo['username']}-{result[0]['wgid']}"
+        fields = [discord_user_info_field, user_info_field, user_clan_field, user_clan_tag_field, user_wn8_recent_field, user_winrate_field]
         embed['fields'] = fields
-        DiscordHTTP().post_message(channelid=output_channelid,embed=embed)
+        DiscordHTTP().post_message(channelid=output_channelid,message=f"User info as requested by {self.message['authormention']}", embed=embed)
         #time.sleep(.25)
         #DiscordHTTP().post_message(channelid=output_channelid, )
             
