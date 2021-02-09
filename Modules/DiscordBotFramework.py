@@ -57,11 +57,17 @@ class _Info:
             )
             return None
         if not result: #User doesn't exist
-                self.discord.post_message(
-                    message = "User has not registered",
-                    channelid=self.message['guildchannelid'],    
-                )
-                return None #All done
+            self.discord.post_message(
+                message = f"User has not registered {self.message['authormention']}",
+                channelid=output_channelid,    
+            )
+            return None #All don('wgid') is None:
+        if result[0].get('wgid') is None:
+            self.discord.post_message(
+                message = f"User has not registered {self.message['authormention']}",
+                channelid = output_channelid
+            )
+            return None
         userinfo = TomatoGG().get_user_info(wgid=result[0]['wgid'])
         if result[0].get('clan') is None:
             clan = "None"
