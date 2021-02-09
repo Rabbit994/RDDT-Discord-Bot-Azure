@@ -84,17 +84,17 @@ class _Info:
         else:
             discord_nickname = discord_user_info['nick']
         
-        discord_user_info_field = {'name': 'Discord Nick', 'value': f"{discord_nickname}", 'inline': False}
+        discord_user_info_field = {'name': '*Discord Nick*', 'value': f"{discord_nickname}", 'inline': False}
         embed = {"title": f"User info"}
         embed['type'] = 'rich'
         #user_info_field = {"WoT User Name": userinfo['username']}
-        user_info_field = {'name': 'WoT User Name', 'value': f"{userinfo['username']}", 'inline': False}
+        user_info_field = {'name': '*WoT User Name*', 'value': f"{userinfo['username']}", 'inline': False}
         #user_clan_field = {"Clan Name:": clan}
-        user_clan_field = {'name': 'Clan Name', 'value': f"{clan}", 'inline': False}
-        user_clan_tag_field = {'name': 'Clan Tag', 'value': f"None", 'inline': False}
+        user_clan_field = {'name': '*Clan Name*', 'value': f"{clan}", 'inline': False}
+        user_clan_tag_field = {'name': '*Clan Tag*', 'value': f"None", 'inline': False}
         if clan_tag is not None:
             #user_clan_field = {"Clan Tag:": clan_tag}
-            user_clan_tag_field = {'name': "Clan Tag", 'value': f"{clan_tag}", 'inline': False}
+            user_clan_tag_field = {'name': "*Clan Tag*", 'value': f"{clan_tag}", 'inline': False}
         #user_wn8_recent_field = {"WN8 60 Day Recent:": userinfo['recents']['recent60days']['overallWN8']}
         user_wn8_recent_field = {'name': "WN8 60 Day Recent", 
             'value': f"{userinfo['recents']['recent60days']['overallWN8']}", 
@@ -102,7 +102,7 @@ class _Info:
         winrate = (int(userinfo['recents']['recent60days']['wins']) / (int(userinfo['recents']['recent60days']['wins']) + int(userinfo['recents']['recent60days']['losses']))) * 100
         winrate = round(winrate, 2)
         #user_winrate_field = {"60 Day WinRate": winrate}
-        user_winrate_field = {'name': "60 Day WinRate", 'value': f"{winrate}", 'inline': False}
+        user_winrate_field = {'name': "*60 Day WinRate*", 'value': f"{winrate}", 'inline': False}
         #data_info_field = {"Data Provided by tomato.gg": f"https://www.tomato.gg/stats/NA/{userinfo['username']}-{result[0]['wgid']}"}
         #data_info_field = {'name': 'Data Provided by tomato.gg',
         #    'value': f"https://www.tomato.gg/stats/NA/{userinfo['username']}-{result[0]['wgid']}",
