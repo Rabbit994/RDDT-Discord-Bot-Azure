@@ -10,6 +10,7 @@ import Modules.CosmosFramework as CosmosFramework
 import Modules.CommonFramework as CommonFramework
 import Modules.DiscordFramework as DiscordFramework
 import Modules.DiscordBotFramework as DiscordBotFramework
+from Modules.DiscordBotFramework import MessageHandler
 
 #region Service Bus for incoming
 config = CommonFramework.RetrieveConfigOptions('discordlisten')
@@ -86,7 +87,7 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                         __return_message(body,returnmessage)
 
                     elif discordmessage[0] == '!info':
-                        pass
+                        MessageHandler(message=body).info()
 
                     elif discordmessage[0] == '!startcontest':
                         returnmessage = DiscordBotFramework.startcontest(body)
