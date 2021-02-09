@@ -74,11 +74,16 @@ class DiscordHTTP:
             response = self.__send_discord_delete_request(uri)
         return response.status_code
 
-    def post_message(self,message:str, channelid:int, embed:dict = None):
+    def post_message(self, channelid:int, message:str = None, embed:dict = None):
         #Post message
         uri = f"{self.baseuri}/channels/{channelid}/messages"
+        if embed is None:
+            message = {"content": message}
+            message['tts'] = False
+        else:
+            message = {'embed': embed}
+        return self.__send_discord_post_request(uri=uri, body = message)
         
-        pass
 ##Private Functions
 def GetDiscordHeaders():
     """Generates Header for Discord HTTP requests"""
