@@ -1,6 +1,8 @@
 #This module handles the bot commands
 #Outbound messages should be put back into dict and returned to message_handler for outbound message processing
 
+#This is no longer for new commands, Class should handle and pass out proper messages
+
 import hashlib
 import datetime
 import time
@@ -12,25 +14,78 @@ import Modules.CommonFramework as CommonFramework
 import Modules.CosmosFramework as CosmosFramework
 import Modules.DiscordFramework as DiscordFramework
 import Modules.wotframework as wotframework
-
+from Modules.tomatogg import TomatoGG
+from Modules.DiscordFramework import DiscordHTTP
 class MessageHandler:
-    class Info:
-        def __init__(self,parent):
-            self.parent = parent
-
-        def get_user_info(self):
-            query = f"SELECT * FROM c WHERE c.discordid='{self.parent.splitmessage[1]}'"
-            result = CosmosFramework.QueryItems()
-            
     
-    def __init__(self,message:dict):
+    def __init__(self, message:dict) -> None:
         self.message = message
         self.splitmessage = self.__split_message()
-        self.info = MessageHandler.Info()
 
     def __split_message(self) -> list:
         return self.message['message'].split(" ")
 
+    def info(self):
+        __Info(self.message, self.splitmessage).handle_info()
+        
+
+class __Info:
+
+    def __init__(self, message:dict, message_split:list):
+        self.message = message
+        self.message_split = message_split
+        self.tomatogg = TomatoGG()
+        self.discord = DiscordHTTP()
+
+    def handle_info(self):
+        output_channelid = "808513555824771092"
+        if len(self.message_split[1]) == 10: #WGID
+            query = f"SELECT * FROM c WHERE c.wgid = {self.message_split[1]}"
+            result = CosmosFramework.QueryItems(cosmosdbquery=query, container='users')
+            
+        elif len(self.message_split[1]) in range(17,18):
+            query = f"SELECT * FROM c WHERE c.discordid='{self.message_split[1]}"
+            result = CosmosFramework.QueryItems(
+                cosmosdbquery=query,
+                container='users'
+            )
+
+        else:
+            self.discord.post_message(
+                message= "Improper request, please pass in DiscordID or Wargaming ID",
+                channelid=self.discord.message['guildchannelid']
+            )
+            return None
+        if not result: #User doesn't exist
+                self.discord.post_message(
+                    message = "User has not registered",
+                    channelid=self.message['guildchannelid'],    
+                )
+                return None #All done
+        userinfo = TomatoGG.get_user_info(result[0]['wgid'])
+        if result[0].get('clan') is not None:
+            clan = "None"
+            clan_tag = None
+        else:
+            clan = wotframework.GetClanInfo(result[0].get('clan'))
+            clan = clan['data'][result[0]['clan']]['name']
+            clan_tag = clan['data'][result[0]['clan']]['tag']
+        
+        embed = {"title": f"User info as requested by {self.message['authormention']}"}
+        user_info_field = {"WoT User Name:": userinfo['username']}
+        user_clan_field = {"Clan Name:": clan}
+        if clan_tag is not None:
+            user_clan_field = {"Clan Tag:": clan_tag}
+        user_wn8_recent_field = {"WN8 60 Day Recent:": userinfo['recents']['recent60days']['overallWN8']}
+        winrate = int(userinfo['recents']['recent60days']['wins']) / (int(userinfo['recents']['recent60days']['wins']) + int(userinfo['recents']['recent60day']['losses']))
+        user_winrate_field = {"60 Day WinRate": winrate}
+        data_info_field = {"Data Provided by tomato.gg": f"https://www.tomato.gg/stats/NA/{userinfo['username']}-{result[0]['wgid']}"}
+        fields = [user_info_field,user_clan_field,user_wn8_recent_field,user_winrate_field,data_info_field]
+        embed['fields'] = fields
+        DiscordHTTP().post_message(channelid=output_channelid,embed=embed)
+        #time.sleep(.25)
+        #DiscordHTTP().post_message(channelid=output_channelid, )
+            
 
 #Public def
 def register(message: dict) -> dict:
