@@ -101,7 +101,7 @@ class _Info:
         #data_info_field = {'name': 'Data Provided by tomato.gg',
         #    'value': f"https://www.tomato.gg/stats/NA/{userinfo['username']}-{result[0]['wgid']}",
         #    'inline': True}
-        embed['url'] = f"https://www.tomato.gg/stats/NA/{userinfo['username']}-{result[0]['wgid']}"
+        embed['url'] = f"https://www.tomato.gg/stats/NA/{userinfo['username']}={result[0]['wgid']}"
         fields = [discord_user_info_field, user_info_field, user_clan_field, user_clan_tag_field, user_wn8_recent_field, user_winrate_field]
         embed['fields'] = fields
         DiscordHTTP().post_message(channelid=output_channelid,message=f"User info as requested by {self.message['authormention']}", embed=embed)
