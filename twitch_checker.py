@@ -1,5 +1,6 @@
 """
-This is check for Wargaming NA Stream and posting if active"""
+This is check for Wargaming NA Stream and posting if active
+"""
 import time
 
 from Modules.twitch import TwitchAPI

@@ -14,4 +14,3 @@ class TomatoGG:
             return r.json()
         except:
             return None
-

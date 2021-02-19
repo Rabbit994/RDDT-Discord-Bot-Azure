@@ -14,6 +14,7 @@ import Modules.CommonFramework as CommonFramework
 import Modules.CosmosFramework as CosmosFramework
 import Modules.DiscordFramework as DiscordFramework
 import Modules.wotframework as wotframework
+
 from Modules.tomatogg import TomatoGG
 from Modules.DiscordFramework import DiscordHTTP
 class MessageHandler:
