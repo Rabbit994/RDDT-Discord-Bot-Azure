@@ -70,7 +70,7 @@ class _Info:
             )
             return None
         userinfo = TomatoGG().get_user_info(wgid=result[0]['wgid'])
-        if result[0].get('clanData') is None:
+        if result[0].get('clan') is None:
             clan = "None"
             clan_tag = None
         else:
