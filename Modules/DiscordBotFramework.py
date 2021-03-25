@@ -62,7 +62,7 @@ class _Info:
                 message = f"User has not registered {self.message['authormention']}",
                 channelid=output_channelid,    
             )
-            return None #All don('wgid') is None:
+            return None
         if result[0].get('wgid') is None:
             self.discord.post_message(
                 message = f"User has not registered {self.message['authormention']}",
@@ -70,7 +70,7 @@ class _Info:
             )
             return None
         userinfo = TomatoGG().get_user_info(wgid=result[0]['wgid'])
-        if result[0].get('clan') is None:
+        if result[0].get('clanData') is None:
             clan = "None"
             clan_tag = None
         else:
@@ -88,9 +88,7 @@ class _Info:
         discord_user_info_field = {'name': '*Discord Nick*', 'value': f"{discord_nickname}", 'inline': False}
         embed = {"title": f"User info"}
         embed['type'] = 'rich'
-        #user_info_field = {"WoT User Name": userinfo['username']}
-        user_info_field = {'name': '*WoT User Name*', 'value': f"{userinfo['username']}", 'inline': False}
-        #user_clan_field = {"Clan Name:": clan}
+        user_info_field = {'name': '*WoT User Name*', 'value': f"{userinfo['summary']['nickname']}", 'inline': False}
         user_clan_field = {'name': '*Clan Name*', 'value': f"{clan}", 'inline': False}
         user_clan_tag_field = {'name': '*Clan Tag*', 'value': f"None", 'inline': False}
         if clan_tag is not None:
@@ -108,7 +106,7 @@ class _Info:
         #data_info_field = {'name': 'Data Provided by tomato.gg',
         #    'value': f"https://www.tomato.gg/stats/NA/{userinfo['username']}-{result[0]['wgid']}",
         #    'inline': True}
-        embed['url'] = f"https://www.tomato.gg/stats/NA/{userinfo['username']}={result[0]['wgid']}"
+        embed['url'] = f"https://www.tomato.gg/stats/NA/{userinfo['summary']['nickname']}={result[0]['wgid']}"
         fields = [discord_user_info_field, user_info_field, user_clan_field, user_clan_tag_field, user_wn8_recent_field, user_winrate_field]
         embed['fields'] = fields
         DiscordHTTP().post_message(channelid=output_channelid,message=f"User info as requested by {self.message['authormention']}", embed=embed)
