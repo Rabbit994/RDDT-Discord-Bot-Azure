@@ -139,7 +139,7 @@ def register(message: dict) -> dict:
         document['discordid'] = str(authordiscordid) #Discord IDs are in strings
         document['wgtoken'] = str(genToken(str(authordiscordid)))
         CosmosFramework.InsertItem(document)
-        returnmessage['channel'] = ("Welcome {0}! Check your direct messages for a link. Please note, I only support NA Server for sign in.".format(message['authordisplayname'])
+        returnmessage['channel'] = "Welcome {0}! Check your direct messages for a link. Please note, I only support NA Server for sign in.".format(message['authordisplayname'])
         #returnmessage['author'] = genURL(document['wgtoken'])
         pmresult = DiscordFramework.send_discord_private_message(message=genURL(document['wgtoken']),discordid=message['authorid'])
         if pmresult.get('message') == 'Cannot send messages to this user':
