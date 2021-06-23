@@ -3,10 +3,118 @@ import requests
 import os
 from time import sleep
 import Modules.CommonFramework as CommonFramework
-
 baseuri = "https://discord.com/api"
 config = CommonFramework.RetrieveConfigOptions("discord")
 
+
+class DiscordHTTP:
+    def __init__(self) -> None:
+        global config
+        self.token = config['token']
+        self.baseuri = "https://discord.com/api"
+
+    def __generate_discord_header(self) -> dict:
+        header = {'Authorization': str(f"Bot {self.token}"), 'User-Agent': '/r/worldoftanks Discord Bot (https://github.com/Rabbit994/RDDT-Discord-Bot-Azure, v1.0.5)'}
+        return header
+    
+    def __send_discord_put_request(self, uri:str):
+        statuscode = 0
+        for x in range(0,3):
+            r = requests.put(uri, headers=self.__generate_discord_header())
+            statuscode = r.status_code
+            if statuscode == 429: #If 
+                sleep(int(r.headers['X-RateLimit-Reset-After']))
+            elif statuscode in range(200,299):
+                return r
+        return r #Return r which will be HTTP error
+    
+    def __send_discord_delete_request(self, uri:str):
+        for x in range(0,3):
+            r = requests.delete(url=uri, headers=self.__generate_discord_header())
+            statuscode = r.status_code
+            if statuscode == 429:
+                sleep(int(r.headers['X-RateLimit-Reset-After']))
+            elif statuscode in range(200,299):
+                return r
+        return r
+
+    def __send_discord_post_request(self, uri:str, body:dict):
+        for x in range(0,3):
+            r = requests.post(url=uri, json=body, headers=self.__generate_discord_header())
+            statuscode = r.status_code
+            if statuscode == 429:
+                sleep(int(r.headers['X-RateLimit-Reset-After']))
+            elif statuscode in range(200,299):
+                return r
+        return r
+
+    def __send_discord_post_embed_request(self, uri:str, body:dict):
+        for x in range(0,3):
+            body_str = json.dumps(body)
+            headers = self.__generate_discord_header()
+            headers['content-type'] = 'application/json'
+            r = requests.post(url=uri, data=body_str, headers=headers)
+            statuscode = r.status_code
+            if statuscode == 429:
+                sleep(int(r.headers['X-RateLimit-Reset-After']))
+            elif statuscode in range(200,299):
+                return r
+        return r
+
+    def __send_discord_get_request(self, uri:str):
+        for x in range(0,3):
+            r = requests.get(url=uri, headers=self.__generate_discord_header())
+            statuscode = r.status_code
+            if statuscode == 429:
+                sleep(int(r.headers['X-RateLimit-Reset-After']))
+            elif statuscode in range(200,299):
+                return r
+        return r
+
+    def add_reaction_to_message(self, channelid:int, messageid:int, emoji:str) -> int:
+        """Adds reaction to message, pass str of emoji id, will return status code"""
+        if channelid is None or messageid is None or emoji is None:
+            return None
+        emoji = emoji.replace(":","%3A")
+        emoji = emoji.replace("+","%2B")
+        uri = f"{self.baseuri}/channels/{channelid}/messages/{messageid}/reactions/{emoji}/@me"
+        response = self.__send_discord_put_request(uri=uri)
+        return response.status_code
+    
+    def add_role_to_user(self,guildid:int,userid:int,roleid:int):
+        uri = f"{self.baseuri}/guilds/{guildid}/members/{userid}/roles/{roleid}"
+        response = self.__send_discord_put_request(uri)
+        if response.status_code != 204: #send it again
+            sleep(5)
+            response = self.__send_discord_put_request(uri)
+        return response.status_code
+
+    def remove_role_from_user(self,guildid:int,userid:int,roleid:int):
+        uri = f"{self.baseuri}/guilds/{guildid}/members/{userid}/roles/{roleid}"
+        response = self.__send_discord_delete_request(uri)
+        if response.status_code != 204: #send it again
+            sleep(5)
+            response = self.__send_discord_delete_request(uri)
+        return response.status_code
+
+    def post_message(self, channelid:int, message:str, embed:dict = None):
+        #Post message
+        uri = f"{self.baseuri}/channels/{channelid}/messages"
+        if embed is None:
+            message = {"content": message}
+            message['tts'] = False
+            return self.__send_discord_post_request(uri=uri, body = message)
+        else:
+            message_body = {'embed': embed}
+            message_body['content'] = message
+            message_body['tts'] = False
+            return self.__send_discord_post_embed_request(uri=uri, body=message_body)
+        #return self.__send_discord_post_request(uri=uri, body = message)
+
+    def get_user(self, discordid:int) -> dict:
+        uri = f"{self.baseuri}/guilds/414198832092545037/members/{discordid}"
+        response = self.__send_discord_get_request(uri)
+        return response
 
 ##Private Functions
 def GetDiscordHeaders():
@@ -106,7 +214,8 @@ def send_discord_private_message(message,discordid):
     body = {}
     body['recipient_id'] = discordid
     data = SendDiscordPostRequest(uri,body)
-    SendDiscordMessage(message,data['id'])
+    messagedata = SendDiscordMessage(message,data['id'])
+    return messagedata
 
 def get_channel_info(channelid:str) -> dict:
     global baseuri

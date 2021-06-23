@@ -10,6 +10,7 @@ import Modules.CosmosFramework as CosmosFramework
 import Modules.CommonFramework as CommonFramework
 import Modules.DiscordFramework as DiscordFramework
 import Modules.DiscordBotFramework as DiscordBotFramework
+from Modules.DiscordBotFramework import MessageHandler
 
 #region Service Bus for incoming
 config = CommonFramework.RetrieveConfigOptions('discordlisten')
@@ -39,7 +40,7 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                     discordmessage = body['message'].split()
                     #print(body)
                     if discordmessage[0] == '!register' and (
-                    body['guildchannelid'] == 507725600073449482 or body.get("privatemessage") is True):
+                    body.get("guildchannelid") == 507725600073449482 or body.get("privatemessage") is True):
                         returnmessage = DiscordBotFramework.register(body)
                         if 'privatemessage' in body:
                             del returnmessage['channel']
@@ -58,6 +59,10 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                             data = CommonFramework.GetClanBattles(1000002659)
                             webhooks = CommonFramework.RetrieveConfigOptions('webhooks')
                             requests.post(webhooks['rdtt2'], data=data)
+                        elif body['guildchannelid'] == 713854191784820827: #RDDT6
+                            data = CommonFramework.GetClanBattles(1000005754)
+                            webhooks = CommonFramework.RetrieveConfigOptions('webhooks')
+                            requests.post(webhooks['rddt6'], data=data)
 
                     elif discordmessage[0] == '!update':
                         if body['guildchannelid'] == 506659095521132554:
@@ -81,12 +86,12 @@ with sbclient.get_receiver(prefetch=5) as queue_receiver:
                         returnmessage = DiscordBotFramework.citadel(body)
                         __return_message(body,returnmessage)
 
+                    elif discordmessage[0] == '!info':
+                        MessageHandler(message=body).info()
+
                     elif discordmessage[0] == '!startcontest':
                         returnmessage = DiscordBotFramework.startcontest(body)
                         __return_message(body,returnmessage)
-
-                    elif discordmessage[0] == '!addgame':
-                        pass
 
                     elif "http" in body['message'].lower():
                         returnmessage = DiscordBotFramework.handle_links(body)

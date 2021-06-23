@@ -19,7 +19,8 @@ def GetPlayersClanInfo(wgids : List[int]) -> List[Tuple[int, int, str]]:
 def GetClanInfo(wgclanid:int) -> dict:
     apikey = CommonFramework.RetrieveConfigOptions("wargaming")
     apikey = apikey['apitoken']
-    uri = ""
+    uri = f"https://api.worldoftanks.com/wot/clans/info/?application_id={apikey}&clan_id={wgclanid}"
+    return CommonFramework.get_json_data(uri)
 
 def player_data_info(wgid:List[int]) -> dict:
     apikey = CommonFramework.RetrieveConfigOptions("wargaming")

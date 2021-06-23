@@ -1,16 +1,118 @@
 #This module handles the bot commands
 #Outbound messages should be put back into dict and returned to message_handler for outbound message processing
 
+#This is no longer for new commands, Class should handle and pass out proper messages
+
 import hashlib
 import datetime
 import time
 import random
+from typing import List
 
 #Local Modules
 import Modules.CommonFramework as CommonFramework
 import Modules.CosmosFramework as CosmosFramework
 import Modules.DiscordFramework as DiscordFramework
 import Modules.wotframework as wotframework
+
+from Modules.tomatogg import TomatoGG
+from Modules.DiscordFramework import DiscordHTTP
+class MessageHandler:
+    
+    def __init__(self, message:dict) -> None:
+        self.message = message
+        self.splitmessage = self.__split_message()
+
+    def __split_message(self) -> list:
+        return self.message['message'].split(" ")
+
+    def info(self):
+        _Info(self.message, self.splitmessage).handle_info()
+        
+
+class _Info:
+
+    def __init__(self, message:dict, message_split:list):
+        self.message = message
+        self.message_split = message_split
+        self.tomatogg = TomatoGG()
+        self.discord = DiscordHTTP()
+
+    def handle_info(self):
+        output_channelid = "808513555824771092"
+        if len(self.message_split[1]) == 10: #WGID
+            query = f"SELECT * FROM c WHERE c.wgid = {self.message_split[1]}"
+            result = CosmosFramework.QueryItems(cosmosdbquery=query, container='users')
+            
+        elif len(self.message_split[1]) in range(17,19):
+            query = f"SELECT * FROM c WHERE c.discordid='{self.message_split[1]}'"
+            result = CosmosFramework.QueryItems(
+                cosmosdbquery=query,
+                container='users'
+            )
+
+        else:
+            self.discord.post_message(
+                message= "Improper request, please pass in DiscordID or Wargaming ID",
+                channelid=self.message['guildchannelid']
+            )
+            return None
+        if not result: #User doesn't exist
+            self.discord.post_message(
+                message = f"User has not registered {self.message['authormention']}",
+                channelid=output_channelid,    
+            )
+            return None
+        if result[0].get('wgid') is None:
+            self.discord.post_message(
+                message = f"User has not registered {self.message['authormention']}",
+                channelid = output_channelid
+            )
+            return None
+        userinfo = TomatoGG().get_user_info(wgid=result[0]['wgid'])
+        if result[0].get('clan') is None:
+            clan = "None"
+            clan_tag = None
+        else:
+            clan = wotframework.GetClanInfo(result[0].get('clan'))
+            clan_tag = clan['data'][str(result[0]['clan'])]['tag']
+            clan = clan['data'][str(result[0]['clan'])]['name']
+            
+        discord_user_info = DiscordHTTP().get_user(f"{result[0]['discordid']}")
+        discord_user_info = discord_user_info.json()
+        if discord_user_info['nick'] is None:
+            discord_nickname = discord_user_info['user']['username']
+        else:
+            discord_nickname = discord_user_info['nick']
+        
+        discord_user_info_field = {'name': '*Discord Nick*', 'value': f"{discord_nickname}", 'inline': False}
+        embed = {"title": f"User info"}
+        embed['type'] = 'rich'
+        user_info_field = {'name': '*WoT User Name*', 'value': f"{userinfo['summary']['nickname']}", 'inline': False}
+        user_clan_field = {'name': '*Clan Name*', 'value': f"{clan}", 'inline': False}
+        user_clan_tag_field = {'name': '*Clan Tag*', 'value': f"None", 'inline': False}
+        if clan_tag is not None:
+            #user_clan_field = {"Clan Tag:": clan_tag}
+            user_clan_tag_field = {'name': "*Clan Tag*", 'value': f"{clan_tag}", 'inline': False}
+        #user_wn8_recent_field = {"WN8 60 Day Recent:": userinfo['recents']['recent60days']['overallWN8']}
+        user_wn8_recent_field = {'name': "*60 Day WN8*", 
+            'value': f"{userinfo['recents']['recent60days']['overallWN8']}", 
+            'inline': True}
+        winrate = (int(userinfo['recents']['recent60days']['wins']) / (int(userinfo['recents']['recent60days']['wins']) + int(userinfo['recents']['recent60days']['losses']))) * 100
+        winrate = round(winrate, 2)
+        #user_winrate_field = {"60 Day WinRate": winrate}
+        user_winrate_field = {'name': "*60 Day WinRate*", 'value': f"{winrate}", 'inline': False}
+        #data_info_field = {"Data Provided by tomato.gg": f"https://www.tomato.gg/stats/NA/{userinfo['username']}-{result[0]['wgid']}"}
+        #data_info_field = {'name': 'Data Provided by tomato.gg',
+        #    'value': f"https://www.tomato.gg/stats/NA/{userinfo['username']}-{result[0]['wgid']}",
+        #    'inline': True}
+        embed['url'] = f"https://www.tomato.gg/stats/NA/{userinfo['summary']['nickname']}={result[0]['wgid']}"
+        fields = [discord_user_info_field, user_info_field, user_clan_field, user_clan_tag_field, user_wn8_recent_field, user_winrate_field]
+        embed['fields'] = fields
+        DiscordHTTP().post_message(channelid=output_channelid,message=f"User info as requested by {self.message['authormention']}", embed=embed)
+        #time.sleep(.25)
+        #DiscordHTTP().post_message(channelid=output_channelid, )
+            
 
 #Public def
 def register(message: dict) -> dict:
@@ -37,12 +139,33 @@ def register(message: dict) -> dict:
         document['discordid'] = str(authordiscordid) #Discord IDs are in strings
         document['wgtoken'] = str(genToken(str(authordiscordid)))
         CosmosFramework.InsertItem(document)
-        returnmessage['channel'] = "Welcome {0}! Check your direct messages for a link.".format(message['authordisplayname'])
-        returnmessage['author'] = genURL(document['wgtoken'])
+        returnmessage['channel'] = "Welcome {0}! Check your direct messages for a link. Please note, I only support NA Server for sign in.".format(message['authordisplayname'])
+        #returnmessage['author'] = genURL(document['wgtoken'])
+        pmresult = DiscordFramework.send_discord_private_message(message=genURL(document['wgtoken']),discordid=message['authorid'])
+        if pmresult.get('message') == 'Cannot send messages to this user':
+            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message.get('guildchannelid'),
+                messageid=message['messageid'], emoji="❌")
+        else:
+            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message.get('guildchannelid'),
+                messageid=message['messageid'], emoji="\N{WHITE HEAVY CHECK MARK}")
     elif result[0]['wgtoken'] is not None and 'wgid' not in result[0]:
-        returnmessage['author'] = genURL(result[0]['wgtoken'])
+        pmresult = DiscordFramework.send_discord_private_message(message=genURL(result[0]['wgtoken']),discordid=message['authorid'])
+        if pmresult.get('message') == 'Cannot send messages to this user':
+            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message.get('guildchannelid'),
+                messageid=message['messageid'], emoji="❌")
+        else:
+            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message.get('guildchannelid'),
+                messageid=message['messageid'], emoji="\N{WHITE HEAVY CHECK MARK}")
+        #returnmessage['author'] = genURL(result[0]['wgtoken'])
     elif result[0]['wgid'] is not None:
-        returnmessage['author'] = "You have already registered"
+        pmresult = DiscordFramework.send_discord_private_message(message="You have already registered",discordid=message['authorid'])
+        if pmresult.get('message') == 'Cannot send messages to this user':
+            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message.get('guildchannelid'),
+                messageid=message['messageid'], emoji="❌")
+        else:
+            DiscordFramework.DiscordHTTP().add_reaction_to_message(channelid=message.get('guildchannelid'),
+                messageid=message['messageid'], emoji="\N{WHITE HEAVY CHECK MARK}")
+        #returnmessage['author'] = "You have already registered"
     return returnmessage
 
 def update(message):
@@ -93,6 +216,7 @@ def checkroles(discordid:str) -> None:
             listofroles.append(result['discordid'])
         return listofroles
 
+    discord_request = DiscordFramework.DiscordHTTP()
     config = CommonFramework.RetrieveConfigOptions('discord')
     playerresult = CosmosFramework.QueryItems('SELECT * FROM c WHERE c.discordid="{0}"'.format(discordid),'users')
     if not bool(playerresult): #Meaning unknown Discord ID
@@ -107,7 +231,8 @@ def checkroles(discordid:str) -> None:
         friendrole = friendrole[0]
         friendrole = friendrole['discordid']
         if int(friendrole) not in userroles:
-            DiscordFramework.AddUserRole(friendrole,discordid,config['serverid'])
+            discord_request.add_role_to_user(guildid=config['serverid'],userid=discordid,roleid=friendrole)
+            #DiscordFramework.AddUserRole(friendrole,discordid,config['serverid'])
         resproles.remove(friendrole)
     else:
         userrankrole = CosmosFramework.QueryItems('SELECT c.discordid FROM c WHERE c.wotrank ="{0}" AND c.wotclan = {1}'.format(playerresult['rank'],playerresult['clan']),'roles')
@@ -115,14 +240,18 @@ def checkroles(discordid:str) -> None:
         userclanrole = CosmosFramework.QueryItems('SELECT c.discordid FROM c WHERE c.wotclan = {0} AND c.wotrank = null'.format(playerresult['clan']),'roles')
         userclanrole = userclanrole[0]['discordid']
         if int(userrankrole) not in userroles or int(userclanrole) not in userroles:
-            DiscordFramework.AddUserRole(userclanrole,discordid,config['serverid'])
-            DiscordFramework.AddUserRole(userrankrole,discordid,config['serverid'])
+            discord_request.add_role_to_user(guildid=config['serverid'],userid=discordid,roleid=userclanrole)
+            discord_request.add_role_to_user(guildid=config['serverid'],userid=discordid,roleid=userrankrole)
+            #DiscordFramework.AddUserRole(userclanrole,discordid,config['serverid'])
+            #DiscordFramework.AddUserRole(userrankrole,discordid,config['serverid'])
         resproles.remove(userclanrole)
         resproles.remove(userrankrole)
     commonroles = set(int(i) for i in resproles) & set(userroles) #userroles comes back as int
     if bool(commonroles): #Meaning there is roles showing up that shouldn't be there
         for role in commonroles:
-            DiscordFramework.RemoveUserRole(role,discordid,config['serverid'])
+            discord_request.remove_role_from_user(guildid=config['serverid'],userid=discordid,roleid=role)
+            time.sleep(2)
+            #DiscordFramework.RemoveUserRole(role,discordid,config['serverid'])
     return None
 
 def cone(body:dict) -> dict:
